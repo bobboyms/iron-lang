@@ -4,6 +4,11 @@ grammar IronLang;
 DOT:
     '.'
 ;
+
+COMMA:
+    ','
+;
+
 PLUS:
     '+'
     ;
@@ -31,10 +36,6 @@ L_CURLY
 R_CURLY
     : '}'
 ;
-SIGN
-   : ('+' | '-')
-   ;
-
 PLUS_PLUS
     : '++'
 ;
@@ -87,14 +88,14 @@ funcMain
 ;
 
 scope:
-    L_CURLY (assignment | variable | scope)* R_CURLY
+    L_CURLY ( variable | assignment | scope)* R_CURLY
 ;
 
 variable: (MUT)? LET IDENTIFIER (dataTypes)?;
 
-functionArgs: funcArg (',' funcArg)*;
+functionArgs: funcArg (COMMA funcArg)*;
 
-funcArg: IDENTIFIER dataTypes;
+funcArg: (MUT)? IDENTIFIER dataTypes;
 
 dataTypes: TYPE_INT | TYPE_FLOAT;
 
