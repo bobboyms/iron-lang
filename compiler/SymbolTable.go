@@ -1,9 +1,8 @@
 package compiler
 
 type SymbolTable struct {
-	Name  string
-	Type  int
-	Value string
+	Name string
+	Type int
 }
 
 type SymbolTableRecord struct {
@@ -16,11 +15,10 @@ func NewSymbolTableRecord() *SymbolTableRecord {
 	}
 }
 
-func (s *SymbolTableRecord) Insert(name string, tpe int, value string) {
+func (s *SymbolTableRecord) Insert(name string, tpe int) {
 	s.SymbolTables[name] = &SymbolTable{
-		Name:  name,
-		Type:  tpe,
-		Value: value,
+		Name: name,
+		Type: tpe,
 	}
 }
 
@@ -28,19 +26,35 @@ func (s *SymbolTableRecord) GetSymbolTable(name string) *SymbolTable {
 	return s.SymbolTables[name]
 }
 
-type Scopes struct {
+type ScopesManager struct {
 	SymbolTableStack []*SymbolTableRecord
 }
 
-func NewScopes() *Scopes {
-	return &Scopes{}
+func NewScopesManager() *ScopesManager {
+	return &ScopesManager{}
 }
 
-func (s *Scopes) CreateNewScope() {
+func (s *ScopesManager) CreateNewScope() {
 	s.SymbolTableStack = append(s.SymbolTableStack, NewSymbolTableRecord())
 }
+func (s *ScopesManager) NoHasSymbolTableHigherScopes(name string) bool {
 
-func (s *Scopes) GetActualScope() *SymbolTableRecord {
+	size := len(s.SymbolTableStack)
+
+	if size <= 0 {
+		return true
+	}
+
+	for i := size - 1; i >= 0; i-- {
+		if s.SymbolTableStack[i].GetSymbolTable(name) != nil {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (s *ScopesManager) GetActualScope() *SymbolTableRecord {
 
 	size := len(s.SymbolTableStack) - 1
 
@@ -51,6 +65,35 @@ func (s *Scopes) GetActualScope() *SymbolTableRecord {
 	return s.SymbolTableStack[size]
 }
 
-func (s *Scopes) GetAllScopes() []*SymbolTableRecord {
+func (s *ScopesManager) GetAllScopes() []*SymbolTableRecord {
 	return s.SymbolTableStack
+}
+
+func (s *ScopesManager) HasScopes() bool {
+	if len(s.SymbolTableStack) == 0 {
+		return false
+	}
+	return true
+}
+
+func (s *ScopesManager) DeleteActualScope() {
+
+	size := len(s.SymbolTableStack)
+
+	if size <= 0 {
+		return
+	}
+
+	if size == 1 {
+		s.SymbolTableStack = make([]*SymbolTableRecord, 0)
+		return
+	}
+
+	var symbolTableStack []*SymbolTableRecord
+	for i := size - 2; i >= 0; i-- {
+		symbolTableStack = append(symbolTableStack, s.SymbolTableStack[i])
+	}
+
+	s.SymbolTableStack = symbolTableStack
+
 }

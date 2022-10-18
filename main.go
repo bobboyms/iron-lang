@@ -9,7 +9,7 @@ import (
 
 func main() {
 	//Lexical analysis
-	is := antlr.NewInputStream("fn main(){x=2}")
+	is := antlr.NewInputStream("fn main() {let x = 2}")
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}
 	lexer.RemoveErrorListeners()
@@ -27,7 +27,9 @@ func main() {
 	errors.HasParserError(customParserErrorListener.Errors)
 
 	//Semantic analysis
-	statics := compiler.NewSemanticAnalysis(compiler.NewScopes())
+	customSemanticErrorListener := &errors.CustomErrorListener{}
+	statics := compiler.NewSemanticAnalysis(compiler.NewScopesManager(), customSemanticErrorListener)
 	statics.Visit(tree)
+	errors.HasSemanticError(customSemanticErrorListener.Errors)
 
 }

@@ -40,6 +40,15 @@ PLUS_PLUS
     : '++'
 ;
 
+COMPOP
+    : '=='
+    | '!='
+    | '<'
+    | '<='
+    | '>'
+    | '>='
+;
+
 INT_NUMBER
     : [0-9]+
 ;
@@ -79,16 +88,21 @@ WHITE_SPACE:
 ;
 
 //PARSER RULES
-program:
-    funcMain
+program
+    : (function)* funcMain
 ;
+
 
 funcMain
     : FN 'main'L_PAREN (functionArgs)* R_PAREN scope
 ;
 
+function
+    : FN IDENTIFIER L_PAREN (functionArgs)* R_PAREN (dataTypes)? scope
+;
+
 scope:
-    L_CURLY ( variable | assignment | scope)* R_CURLY
+    L_CURLY ( variable | assignment | function |scope)* R_CURLY
 ;
 
 variable: (MUT)? LET IDENTIFIER (dataTypes)?;
