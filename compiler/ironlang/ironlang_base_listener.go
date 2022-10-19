@@ -32,11 +32,23 @@ func (s *BaseIronLangListener) EnterFuncMain(ctx *FuncMainContext) {}
 // ExitFuncMain is called when production funcMain is exited.
 func (s *BaseIronLangListener) ExitFuncMain(ctx *FuncMainContext) {}
 
+// EnterFunction is called when production function is entered.
+func (s *BaseIronLangListener) EnterFunction(ctx *FunctionContext) {}
+
+// ExitFunction is called when production function is exited.
+func (s *BaseIronLangListener) ExitFunction(ctx *FunctionContext) {}
+
 // EnterScope is called when production scope is entered.
 func (s *BaseIronLangListener) EnterScope(ctx *ScopeContext) {}
 
 // ExitScope is called when production scope is exited.
 func (s *BaseIronLangListener) ExitScope(ctx *ScopeContext) {}
+
+// EnterPrintln is called when production println is entered.
+func (s *BaseIronLangListener) EnterPrintln(ctx *PrintlnContext) {}
+
+// ExitPrintln is called when production println is exited.
+func (s *BaseIronLangListener) ExitPrintln(ctx *PrintlnContext) {}
 
 // EnterVariable is called when production variable is entered.
 func (s *BaseIronLangListener) EnterVariable(ctx *VariableContext) {}

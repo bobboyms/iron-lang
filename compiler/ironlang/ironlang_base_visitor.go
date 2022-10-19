@@ -15,7 +15,15 @@ func (v *BaseIronLangVisitor) VisitFuncMain(ctx *FuncMainContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseIronLangVisitor) VisitFunction(ctx *FunctionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseIronLangVisitor) VisitScope(ctx *ScopeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseIronLangVisitor) VisitPrintln(ctx *PrintlnContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

@@ -1,12 +1,12 @@
 package test
 
 import (
-	"iron-lang/compiler"
+	"iron-lang/compiler/scopes"
 	"testing"
 )
 
 func TestScopes(t *testing.T) {
-	manager := compiler.NewScopesManager()
+	manager := scopes.NewScopesManager()
 
 	if manager.HasScopes() == true {
 		t.Fail()
@@ -17,9 +17,9 @@ func TestScopes(t *testing.T) {
 		t.Fail()
 	}
 
-	manager.GetActualScope().Insert("Test 1", 10)
+	manager.RegisterVariable("Test 1", 10)
 
-	if manager.GetActualScope().GetSymbolTable("Test 1") == nil {
+	if manager.GetVariable("Test 1") == nil {
 		t.Fail()
 	}
 
@@ -29,43 +29,43 @@ func TestScopes(t *testing.T) {
 	}
 
 	manager.CreateNewScope()
-	manager.GetActualScope().Insert("Test 1", 10)
-	manager.GetActualScope().Insert("Test 2", 10)
+	manager.RegisterVariable("Test 1", 10)
+	manager.RegisterVariable("Test 2", 10)
 
 	manager.CreateNewScope()
-	manager.GetActualScope().Insert("Test 3", 10)
-	manager.GetActualScope().Insert("Test 4", 10)
+	manager.RegisterVariable("Test 3", 10)
+	manager.RegisterVariable("Test 4", 10)
 
-	if manager.GetActualScope().GetSymbolTable("Test 1") != nil {
+	if manager.GetVariable("Test 1") != nil {
 		t.Fail()
 	}
 
-	if manager.GetActualScope().GetSymbolTable("Test 2") != nil {
+	if manager.GetVariable("Test 2") != nil {
 		t.Fail()
 	}
 
-	if manager.GetActualScope().GetSymbolTable("Test 3") == nil {
+	if manager.GetVariable("Test 3") == nil {
 		t.Fail()
 	}
 
-	if manager.GetActualScope().GetSymbolTable("Test 4") == nil {
+	if manager.GetVariable("Test 4") == nil {
 		t.Fail()
 	}
 
 	manager.DeleteActualScope()
-	if manager.GetActualScope().GetSymbolTable("Test 3") != nil {
+	if manager.GetVariable("Test 3") != nil {
 		t.Fail()
 	}
 
-	if manager.GetActualScope().GetSymbolTable("Test 4") != nil {
+	if manager.GetVariable("Test 4") != nil {
 		t.Fail()
 	}
 
-	if manager.GetActualScope().GetSymbolTable("Test 1") == nil {
+	if manager.GetVariable("Test 1") == nil {
 		t.Fail()
 	}
 
-	if manager.GetActualScope().GetSymbolTable("Test 2") == nil {
+	if manager.GetVariable("Test 2") == nil {
 		t.Fail()
 	}
 

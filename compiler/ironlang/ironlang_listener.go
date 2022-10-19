@@ -13,8 +13,14 @@ type IronLangListener interface {
 	// EnterFuncMain is called when entering the funcMain production.
 	EnterFuncMain(c *FuncMainContext)
 
+	// EnterFunction is called when entering the function production.
+	EnterFunction(c *FunctionContext)
+
 	// EnterScope is called when entering the scope production.
 	EnterScope(c *ScopeContext)
+
+	// EnterPrintln is called when entering the println production.
+	EnterPrintln(c *PrintlnContext)
 
 	// EnterVariable is called when entering the variable production.
 	EnterVariable(c *VariableContext)
@@ -43,8 +49,14 @@ type IronLangListener interface {
 	// ExitFuncMain is called when exiting the funcMain production.
 	ExitFuncMain(c *FuncMainContext)
 
+	// ExitFunction is called when exiting the function production.
+	ExitFunction(c *FunctionContext)
+
 	// ExitScope is called when exiting the scope production.
 	ExitScope(c *ScopeContext)
+
+	// ExitPrintln is called when exiting the println production.
+	ExitPrintln(c *PrintlnContext)
 
 	// ExitVariable is called when exiting the variable production.
 	ExitVariable(c *VariableContext)

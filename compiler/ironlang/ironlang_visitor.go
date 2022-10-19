@@ -2,6 +2,7 @@
 
 package ironlang // IronLang
 import "github.com/antlr/antlr4/runtime/Go/antlr"
+
 // A complete Visitor for a parse tree produced by IronLangParser.
 type IronLangVisitor interface {
 	antlr.ParseTreeVisitor
@@ -12,8 +13,14 @@ type IronLangVisitor interface {
 	// Visit a parse tree produced by IronLangParser#funcMain.
 	VisitFuncMain(ctx *FuncMainContext) interface{}
 
+	// Visit a parse tree produced by IronLangParser#function.
+	VisitFunction(ctx *FunctionContext) interface{}
+
 	// Visit a parse tree produced by IronLangParser#scope.
 	VisitScope(ctx *ScopeContext) interface{}
+
+	// Visit a parse tree produced by IronLangParser#println.
+	VisitPrintln(ctx *PrintlnContext) interface{}
 
 	// Visit a parse tree produced by IronLangParser#variable.
 	VisitVariable(ctx *VariableContext) interface{}
@@ -35,5 +42,4 @@ type IronLangVisitor interface {
 
 	// Visit a parse tree produced by IronLangParser#atom.
 	VisitAtom(ctx *AtomContext) interface{}
-
 }

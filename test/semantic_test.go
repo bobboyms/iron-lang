@@ -5,6 +5,7 @@ import (
 	"iron-lang/compiler"
 	"iron-lang/compiler/errors"
 	"iron-lang/compiler/ironlang"
+	"iron-lang/compiler/scopes"
 	"testing"
 )
 
@@ -28,7 +29,7 @@ func CreateTest(sourceCode string) []*errors.CustomSyntaxError {
 
 	//Semantic analysis
 	customSemanticErrorListener := &errors.CustomErrorListener{}
-	statics := compiler.NewSemanticAnalysis(compiler.NewScopesManager(), customSemanticErrorListener)
+	statics := compiler.NewSemanticAnalysis(scopes.NewScopesManager(), customSemanticErrorListener)
 	statics.Visit(tree)
 	return customSemanticErrorListener.Errors
 }

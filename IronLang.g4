@@ -63,6 +63,10 @@ FN:
     'fn'
 ;
 
+PRINT_LN:
+    'println'
+;
+
 LET:
     'let'
 ;
@@ -89,7 +93,7 @@ WHITE_SPACE:
 
 //PARSER RULES
 program
-    : (function)* funcMain
+    : (function)* funcMain (function)*
 ;
 
 
@@ -102,8 +106,10 @@ function
 ;
 
 scope:
-    L_CURLY ( variable | assignment | function |scope)* R_CURLY
+    L_CURLY ( variable | assignment | function | scope | println)* R_CURLY
 ;
+
+println: PRINT_LN L_PAREN (variable | IDENTIFIER) R_PAREN;
 
 variable: (MUT)? LET IDENTIFIER (dataTypes)?;
 

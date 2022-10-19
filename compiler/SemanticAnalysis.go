@@ -4,14 +4,15 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"iron-lang/compiler/errors"
 	"iron-lang/compiler/ironlang"
+	"iron-lang/compiler/scopes"
 )
 
 type SemanticAnalysis struct {
-	ScopesManager *ScopesManager
+	ScopesManager *scopes.ScopeManager
 	ErrorListener *errors.CustomErrorListener
 }
 
-func NewSemanticAnalysis(scopesManager *ScopesManager, errorListener *errors.CustomErrorListener) *SemanticAnalysis {
+func NewSemanticAnalysis(scopesManager *scopes.ScopeManager, errorListener *errors.CustomErrorListener) *SemanticAnalysis {
 	return &SemanticAnalysis{
 		ScopesManager: scopesManager,
 		ErrorListener: errorListener,
@@ -85,8 +86,8 @@ func (s *SemanticAnalysis) VisitVariable(ctx *ironlang.VariableContext) {
 		default:
 			s.insertNewError(identifier, errors.VariableNotDefined)
 		}
-	} else if s.ScopesManager.GetActualScope().GetSymbolTable(identifier.GetText()) == nil {
-		s.ScopesManager.GetActualScope().Insert(
+	} else if s.ScopesManager.GetVariable(identifier.GetText()) == nil {
+		s.ScopesManager.RegisterVariable(
 			identifier.GetText(),
 			ironlang.IronLangParserTYPE_INT)
 	} else {
