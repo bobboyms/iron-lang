@@ -5,6 +5,7 @@ import (
 	"iron-lang/compiler/errors"
 	"iron-lang/compiler/ironlang"
 	"iron-lang/compiler/scopes"
+	"iron-lang/compiler/utils"
 )
 
 type SemanticAnalysis struct {
@@ -59,7 +60,7 @@ func (s *SemanticAnalysis) VisitFuncMain(ctx *ironlang.FuncMainContext) {
 
 func (s *SemanticAnalysis) VisitScope(ctx *ironlang.ScopeContext) {
 
-	s.ScopesManager.CreateNewScope()
+	s.ScopesManager.CreateNewScope(utils.GetMD5Hash(ctx.GetText()))
 
 	for _, variable := range ctx.AllVariable() {
 		s.Visit(variable)
@@ -87,9 +88,18 @@ func (s *SemanticAnalysis) VisitVariable(ctx *ironlang.VariableContext) {
 			s.insertNewError(identifier, errors.VariableNotDefined)
 		}
 	} else if s.ScopesManager.GetVariable(identifier.GetText()) == nil {
-		s.ScopesManager.RegisterVariable(
-			identifier.GetText(),
-			ironlang.IronLangParserTYPE_INT)
+		dataType := ctx.DataTypes().(*ironlang.DataTypesContext)
+
+		if dataType.TYPE_INT() != nil {
+			s.ScopesManager.RegisterVariable(
+				identifier.GetText(),
+				ironlang.IronLangParserTYPE_INT)
+		} else {
+			s.ScopesManager.RegisterVariable(
+				identifier.GetText(),
+				ironlang.IronLangParserTYPE_FLOAT)
+		}
+
 	} else {
 		s.insertNewError(identifier, errors.VariableHasDeclared)
 	}

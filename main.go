@@ -13,7 +13,7 @@ import (
 
 func main() {
 	//Lexical analysis
-	is := antlr.NewInputStream("fn main() {let variavel int variavel = 20}")
+	is := antlr.NewInputStream("fn main() {let variavel = 20.652}")
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}
 	lexer.RemoveErrorListeners()
@@ -31,13 +31,16 @@ func main() {
 	errors.HasParserError(customParserErrorListener.Errors)
 
 	//Semantic analysis
+
+	scopes := scopes.NewScopesManager()
+
 	customSemanticErrorListener := &errors.CustomErrorListener{}
-	statics := compiler.NewSemanticAnalysis(scopes.NewScopesManager(), customSemanticErrorListener)
+	statics := compiler.NewSemanticAnalysis(scopes, customSemanticErrorListener)
 	statics.Visit(tree)
 	errors.HasSemanticError(customSemanticErrorListener.Errors)
 
 	//Code generator
-	generator := compiler.NewLLVMCodeGenerator()
+	generator := compiler.NewLLVMCodeGenerator(scopes.GetScopeLog())
 	generator.Visit(tree)
 	println(generator.GetBuilder().String())
 	NewFile(generator.GetBuilder())

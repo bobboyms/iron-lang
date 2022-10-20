@@ -3,16 +3,20 @@ package compiler
 import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"iron-lang/compiler/ironlang"
+	"iron-lang/compiler/scopes"
+	"iron-lang/compiler/utils"
 	"strings"
 )
 
 type LLVMCodeGenerator struct {
 	StrBuilder *strings.Builder
+	ScopeLog   *scopes.ScopeLog
 }
 
-func NewLLVMCodeGenerator() *LLVMCodeGenerator {
+func NewLLVMCodeGenerator(scopeLog *scopes.ScopeLog) *LLVMCodeGenerator {
 	return &LLVMCodeGenerator{
 		StrBuilder: &strings.Builder{},
+		ScopeLog:   scopeLog,
 	}
 }
 
@@ -57,6 +61,9 @@ func (l *LLVMCodeGenerator) VisitFuncMain(ctx *ironlang.FuncMainContext) {
 }
 
 func (l *LLVMCodeGenerator) VisitScope(ctx *ironlang.ScopeContext) {
+
+	l.ScopeLog.EnterScope(utils.GetMD5Hash(ctx.GetText()))
+
 	for _, variable := range ctx.AllVariable() {
 		l.Visit(variable)
 	}
@@ -64,6 +71,8 @@ func (l *LLVMCodeGenerator) VisitScope(ctx *ironlang.ScopeContext) {
 	for _, assignment := range ctx.AllAssignment() {
 		l.Visit(assignment)
 	}
+
+	l.ScopeLog.ExitScope()
 }
 
 func (l *LLVMCodeGenerator) VisitVariable(ctx *ironlang.VariableContext) {
@@ -82,9 +91,13 @@ func (l *LLVMCodeGenerator) VisitDataTypes(ctx *ironlang.DataTypesContext) {
 
 func (l *LLVMCodeGenerator) VisitAssignment(ctx *ironlang.AssignmentContext) {
 	println(ctx.GetText())
-	ctx.IDENTIFIER().GetText()
-	//store i32 135, i32* %2, align 4
-	l.StrBuilder.WriteString("float, align 4\n")
+	variable := l.ScopeLog.GetVariable(ctx.IDENTIFIER().GetText())
+	if variable.Type == ironlang.IronLangParserTYPE_INT {
+		l.StrBuilder.WriteString("store i32 135, i32* %" + variable.Name + ", align 4\n")
+	} else {
+		l.StrBuilder.WriteString("store float 1.225000e+01, float* %" + variable.Name + ", align 4\n")
+	}
+
 }
 
 func (l *LLVMCodeGenerator) VisitMathExpression(ctx *ironlang.MathExpressionContext) {
