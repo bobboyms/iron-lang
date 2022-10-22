@@ -1,4 +1,4 @@
-package compiler
+package llvm
 
 import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
@@ -92,6 +92,7 @@ func (l *LLVMCodeGenerator) VisitDataTypes(ctx *ironlang.DataTypesContext) {
 func (l *LLVMCodeGenerator) VisitAssignment(ctx *ironlang.AssignmentContext) {
 	println(ctx.GetText())
 	variable := l.ScopeLog.GetVariable(ctx.IDENTIFIER().GetText())
+	l.Visit(ctx.MathExpression())
 	if variable.Type == ironlang.IronLangParserTYPE_INT {
 		l.StrBuilder.WriteString("store i32 135, i32* %" + variable.Name + ", align 4\n")
 	} else {
@@ -101,6 +102,7 @@ func (l *LLVMCodeGenerator) VisitAssignment(ctx *ironlang.AssignmentContext) {
 }
 
 func (l *LLVMCodeGenerator) VisitMathExpression(ctx *ironlang.MathExpressionContext) {
+
 }
 
 func (l *LLVMCodeGenerator) VisitAtom(ctx *ironlang.AtomContext) {

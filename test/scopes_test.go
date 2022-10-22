@@ -1,6 +1,8 @@
 package test
 
 import (
+	"iron-lang/compiler/codegenerator/llvm"
+	"iron-lang/compiler/ironlang"
 	"iron-lang/compiler/scopes"
 	"testing"
 )
@@ -106,4 +108,13 @@ func TestCopyScopes(t *testing.T) {
 	}
 	logs.ExitScope()
 
+}
+
+func TestScopesStackExpression(t *testing.T) {
+	//20 + 30.0
+	expression := llvm.NewExpressionStack()
+	expression.InitExpression()
+	expression.Register(0, "10", ironlang.IronLangLexerPLUS, ironlang.IronLangLexerTYPE_INT)
+	expression.Register(0, "50", 0, ironlang.IronLangLexerTYPE_FLOAT)
+	println(expression.GenerateLLVMCode())
 }

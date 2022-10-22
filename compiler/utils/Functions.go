@@ -12,6 +12,6 @@ func GetMD5Hash(text string) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-func GetScienceValue(value float32) string {
+func GetScienceValue(value float64) string {
 	return fmt.Sprintf("%e", value)
 }

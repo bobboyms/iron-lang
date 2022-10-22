@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"iron-lang/compiler"
+	"iron-lang/compiler/codegenerator"
 	"iron-lang/compiler/errors"
 	"iron-lang/compiler/ironlang"
 	"iron-lang/compiler/scopes"
@@ -12,8 +13,14 @@ import (
 )
 
 func main() {
+
+	e := os.Remove("source.c")
+	if e != nil {
+		//log.Fatal(e)
+	}
+
 	//Lexical analysis
-	is := antlr.NewInputStream("fn main() {let variavel = 20.652}")
+	is := antlr.NewInputStream("fn main() {let x float = 2 + (2 * 5)}")
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}
 	lexer.RemoveErrorListeners()
@@ -40,14 +47,14 @@ func main() {
 	errors.HasSemanticError(customSemanticErrorListener.Errors)
 
 	//Code generator
-	generator := compiler.NewLLVMCodeGenerator(scopes.GetScopeLog())
+	generator := codegenerator.NewClang(scopes.GetScopeLog())
 	generator.Visit(tree)
 	println(generator.GetBuilder().String())
 	NewFile(generator.GetBuilder())
 }
 
 func NewFile(strBuilder *strings.Builder) {
-	f, err := os.Create("source.ll")
+	f, err := os.Create("source.tmp")
 
 	if err != nil {
 		log.Fatal(err)
