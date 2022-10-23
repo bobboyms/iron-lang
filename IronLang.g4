@@ -40,6 +40,10 @@ PLUS_PLUS
     : '++'
 ;
 
+PIPE
+    : '|'
+;
+
 COMPOP
     : '=='
     | '!='
@@ -47,6 +51,10 @@ COMPOP
     | '<='
     | '>'
     | '>='
+;
+
+ARROW
+    : '->'
 ;
 
 INT_NUMBER
@@ -106,7 +114,7 @@ funcMain
 ;
 
 function
-    : FN IDENTIFIER L_PAREN (functionArgs)* R_PAREN (dataTypes)? scope
+    : FN IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? scope
 ;
 
 return
@@ -114,14 +122,23 @@ return
 ;
 
 scope:
-    L_CURLY ( variable | assignment | function | funcCall | scope | println )* (return)? R_CURLY
+    L_CURLY (bodyScope)* (return)? R_CURLY
 ;
 
 funcCall
     : IDENTIFIER L_PAREN (funcCallArg (COMMA funcCallArg)*)? R_PAREN
 ;
 
-funcCallArg: mathExpression;
+funcCallArg: mathExpression | funcCall;
+
+//() int -> {}
+anonimousFunc
+    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)?
+      ARROW (bodyScope)*
+;
+
+bodyScope: anonimousFunc | variable | assignment | function | funcCall | scope | println ;
+
 
 println: PRINT_LN L_PAREN (variable | IDENTIFIER) R_PAREN;
 
@@ -133,7 +150,7 @@ funcArg: (MUT)? IDENTIFIER dataTypes;
 
 dataTypes: TYPE_INT | TYPE_FLOAT;
 
-assignment: (variable | IDENTIFIER) EQ (mathExpression);
+assignment:  IDENTIFIER | variable EQ (anonimousFunc)? | mathExpression;
 
 mathExpression
    :  mathExpression  (MULT | DIV)  mathExpression

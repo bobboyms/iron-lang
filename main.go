@@ -15,7 +15,7 @@ import (
 func main() {
 
 	//Lexical analysis
-	is := antlr.NewInputStream("fn main() {fn texte() int {fn teste(){0}0.658}}")
+	is := antlr.NewInputStream("fn main() {fn teste() {} teste(text(teste(),teste(),12,x))}")
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}
 	lexer.RemoveErrorListeners()
