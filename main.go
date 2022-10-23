@@ -14,13 +14,8 @@ import (
 
 func main() {
 
-	e := os.Remove("source.c")
-	if e != nil {
-		//log.Fatal(e)
-	}
-
 	//Lexical analysis
-	is := antlr.NewInputStream("fn main() {let x float = 2 + (2 * 5)}")
+	is := antlr.NewInputStream("fn main() {fn texte() int {fn teste(){0}0.658}}")
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}
 	lexer.RemoveErrorListeners()

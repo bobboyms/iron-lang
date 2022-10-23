@@ -75,6 +75,10 @@ MUT:
     'mut'
 ;
 
+RETURN:
+    'return'
+;
+
 //Var Types
 TYPE_INT
     : 'int'
@@ -105,9 +109,19 @@ function
     : FN IDENTIFIER L_PAREN (functionArgs)* R_PAREN (dataTypes)? scope
 ;
 
-scope:
-    L_CURLY ( variable | assignment | function | scope | println)* R_CURLY
+return
+    : (RETURN)? mathExpression
 ;
+
+scope:
+    L_CURLY ( variable | assignment | function | funcCall | scope | println )* (return)? R_CURLY
+;
+
+funcCall
+    : IDENTIFIER L_PAREN (funcCallArg (COMMA funcCallArg)*)? R_PAREN
+;
+
+funcCallArg: mathExpression;
 
 println: PRINT_LN L_PAREN (variable | IDENTIFIER) R_PAREN;
 

@@ -9,14 +9,17 @@ import (
 )
 
 type Clang struct {
-	StrBuilder *strings.Builder
-	ScopeLog   *scopes.ScopeLog
+	StrBuilder       *StringBuilder
+	StrImportBuilder *StringBuilder
+	StrFuncBuilder   *StringBuilder
+	ScopeLog         *scopes.ScopeLog
 }
 
 func NewClang(scopeLog *scopes.ScopeLog) *Clang {
 	return &Clang{
-		StrBuilder: &strings.Builder{},
-		ScopeLog:   scopeLog,
+		StrBuilder:       NewStringBuilder(),
+		StrImportBuilder: NewStringBuilder(),
+		ScopeLog:         scopeLog,
 	}
 }
 
@@ -38,26 +41,37 @@ func (l *Clang) Visit(tree antlr.ParseTree) {
 		l.VisitVariable(val)
 	case *ironlang.DataTypesContext:
 		l.VisitDataTypes(val)
+	case *ironlang.FunctionContext:
+		l.VisitFunction(val)
+	case *ironlang.ReturnContext:
+		l.VisitReturn(val)
+
 	default:
 		panic("Unknown context")
 	}
 }
 
 func (l *Clang) GetBuilder() *strings.Builder {
-	return l.StrBuilder
+	builder := &strings.Builder{}
+	builder.WriteString(l.StrImportBuilder.GetBuilder().String())
+	if l.StrFuncBuilder != nil {
+		builder.WriteString(l.StrFuncBuilder.GetBuilder().String())
+	}
+	builder.WriteString(l.StrBuilder.GetBuilder().String())
+	return builder
 }
 
 func (l *Clang) VisitProgram(ctx *ironlang.ProgramContext) {
-	l.StrBuilder.WriteString("#include <stdio.h>\n")
+	l.StrImportBuilder.WriteString("#include <stdio.h>\n")
 	l.Visit(ctx.FuncMain())
-	l.StrBuilder.WriteString("")
+	l.StrBuilder.WriteString("\n")
+
 }
 
 func (l *Clang) VisitFuncMain(ctx *ironlang.FuncMainContext) {
 	l.StrBuilder.WriteString("int main() ")
 	l.StrBuilder.WriteString("{\n")
 	l.Visit(ctx.Scope())
-
 	l.StrBuilder.WriteString("printf(\"%f\",x);\n")
 	l.StrBuilder.WriteString("return 0;\n")
 	l.StrBuilder.WriteString("}\n")
@@ -75,7 +89,44 @@ func (l *Clang) VisitScope(ctx *ironlang.ScopeContext) {
 		l.Visit(assignment)
 	}
 
+	builder := NewStringBuilder()
+	for _, function := range ctx.AllFunction() {
+		c := NewClang(l.ScopeLog)
+		c.Visit(function)
+		builder.WriteString(c.GetBuilder().String())
+	}
+
+	if len(builder.GetBuilder().String()) > 0 {
+		l.StrFuncBuilder = NewStringBuilder()
+		l.StrFuncBuilder.WriteString(builder.GetBuilder().String())
+	}
+
+	if ctx.Return() != nil {
+		l.Visit(ctx.Return())
+	}
+
 	l.ScopeLog.ExitScope()
+
+}
+
+func (l *Clang) VisitReturn(ctx *ironlang.ReturnContext) {
+	l.StrBuilder.WriteString("return ")
+	l.Visit(ctx.MathExpression())
+	l.StrBuilder.WriteString(";\n")
+}
+
+func (l *Clang) VisitFunction(ctx *ironlang.FunctionContext) {
+	l.StrBuilder.WriteString("\n")
+	if ctx.DataTypes() != nil {
+		l.Visit(ctx.DataTypes())
+	}
+
+	l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
+	l.StrBuilder.WriteString("(")
+	l.StrBuilder.WriteString(") ")
+	l.StrBuilder.WriteString("{\n")
+	l.Visit(ctx.Scope())
+	l.StrBuilder.WriteString("}\n")
 }
 
 func (l *Clang) VisitVariable(ctx *ironlang.VariableContext) {
