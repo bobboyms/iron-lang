@@ -38,19 +38,34 @@ func (s *SemanticAnalysis) Visit(tree antlr.ParseTree) {
 		s.VisitVariable(val)
 	case *ironlang.DataTypesContext:
 		s.VisitDataTypes(val)
-	//case *ironlang.FunctionContext:
-	//	s.VisitFunction(val)
-	//case *ironlang.ReturnContext:
-	//	s.VisitReturn(val)
-	//case *ironlang.FuncCallContext:
-	//	s.VisitFuncCall(val)
-	//case *ironlang.FuncCallArgContext:
-	//	s.VisitFuncCallArg(val)
+	case *ironlang.FunctionContext:
+		s.VisitFunction(val)
+	case *ironlang.ReturnContext:
+		s.VisitReturn(val)
+	case *ironlang.FuncCallContext:
+		s.VisitFuncCall(val)
+	case *ironlang.FuncCallArgContext:
+		s.VisitFuncCallArg(val)
 	case *ironlang.BodyScopeContext:
 		s.VisitBodyScope(val)
 	default:
 		panic("Unknown context")
 	}
+}
+
+func (s *SemanticAnalysis) VisitFunction(ctx *ironlang.FunctionContext) {
+
+}
+
+func (s *SemanticAnalysis) VisitReturn(ctx *ironlang.ReturnContext) {
+}
+
+func (s *SemanticAnalysis) VisitFuncCall(ctx *ironlang.FuncCallContext) {
+
+}
+
+func (s *SemanticAnalysis) VisitFuncCallArg(ctx *ironlang.FuncCallArgContext) {
+
 }
 
 func (s *SemanticAnalysis) insertNewError(identifier antlr.TerminalNode, codeError errors.CodeError) {
@@ -143,10 +158,14 @@ func (s *SemanticAnalysis) VisitAssignment(ctx *ironlang.AssignmentContext) {
 			s.insertNewError(identifier, errors.VariableNotDeclared)
 		}
 	} else {
-		s.Visit(ctx.Variable())
+		if ctx.Variable() != nil {
+			s.Visit(ctx.Variable())
+		}
 	}
 
-	s.Visit(ctx.MathExpression())
+	if ctx.MathExpression() != nil {
+		s.Visit(ctx.MathExpression())
+	}
 
 }
 

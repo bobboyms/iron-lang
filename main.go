@@ -15,7 +15,7 @@ import (
 func main() {
 
 	//Lexical analysis
-	is := antlr.NewInputStream("fn main() {fn t1() { fn t2() { fn t3() { } } } }")
+	is := antlr.NewInputStream("fn main() {let x = (x int, y int) int -> let xx = () -> 2+2}")
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}
 	lexer.RemoveErrorListeners()
@@ -42,7 +42,7 @@ func main() {
 	errors.HasSemanticError(customSemanticErrorListener.Errors)
 
 	//Code generator
-	generator := codegenerator.NewClang(scopes.GetScopeLog())
+	generator := codegenerator.NewClang(scopes.GetScopeLog(), 0)
 	generator.Visit(tree)
 	println(generator.GetBuilder().String())
 	NewFile(generator.GetBuilder())

@@ -134,11 +134,10 @@ funcCallArg: mathExpression | funcCall;
 //() int -> {}
 anonimousFunc
     : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)?
-      ARROW (bodyScope)*
+      ARROW (bodyScope)? (return)?
 ;
 
-bodyScope: anonimousFunc | variable | assignment | function | funcCall | scope | println ;
-
+bodyScope: variable | assignment | function | funcCall | scope | println ;
 
 println: PRINT_LN L_PAREN (variable | IDENTIFIER) R_PAREN;
 
@@ -150,7 +149,7 @@ funcArg: (MUT)? IDENTIFIER dataTypes;
 
 dataTypes: TYPE_INT | TYPE_FLOAT;
 
-assignment:  IDENTIFIER | variable EQ (anonimousFunc)? | mathExpression;
+assignment:  IDENTIFIER | variable EQ (mathExpression | (anonimousFunc)?);
 
 mathExpression
    :  mathExpression  (MULT | DIV)  mathExpression
