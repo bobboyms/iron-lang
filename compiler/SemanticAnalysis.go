@@ -36,6 +36,18 @@ func (s *SemanticAnalysis) Visit(tree antlr.ParseTree) {
 		s.VisitAtom(val)
 	case *ironlang.VariableContext:
 		s.VisitVariable(val)
+	case *ironlang.DataTypesContext:
+		s.VisitDataTypes(val)
+	//case *ironlang.FunctionContext:
+	//	s.VisitFunction(val)
+	//case *ironlang.ReturnContext:
+	//	s.VisitReturn(val)
+	//case *ironlang.FuncCallContext:
+	//	s.VisitFuncCall(val)
+	//case *ironlang.FuncCallArgContext:
+	//	s.VisitFuncCallArg(val)
+	case *ironlang.BodyScopeContext:
+		s.VisitBodyScope(val)
 	default:
 		panic("Unknown context")
 	}
@@ -58,21 +70,35 @@ func (s *SemanticAnalysis) VisitFuncMain(ctx *ironlang.FuncMainContext) {
 	s.Visit(ctx.Scope())
 }
 
+func (s *SemanticAnalysis) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
+	if ctx.Variable() != nil {
+		s.Visit(ctx.Variable())
+	}
+
+	if ctx.Assignment() != nil {
+		s.Visit(ctx.Assignment())
+	}
+
+	//if ctx.Function() != nil {
+	//	s.Visit(ctx.Function())
+	//}
+	//
+	//if ctx.FuncCall() != nil {
+	//	s.Visit(ctx.FuncCall())
+	//}
+}
+
 func (s *SemanticAnalysis) VisitScope(ctx *ironlang.ScopeContext) {
 
 	s.ScopesManager.CreateNewScope(utils.GetMD5Hash(ctx.GetText()))
 
-	for _, variable := range ctx.AllVariable() {
-		s.Visit(variable)
+	for _, body := range ctx.AllBodyScope() {
+		s.Visit(body)
 	}
 
-	for _, assignment := range ctx.AllAssignment() {
-		s.Visit(assignment)
-	}
-
-	for _, scope := range ctx.AllScope() {
-		s.Visit(scope)
-	}
+	//if ctx.Return() != nil {
+	//	s.Visit(ctx.Return())
+	//}
 
 	s.ScopesManager.DeleteActualScope()
 }

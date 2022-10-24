@@ -28,6 +28,12 @@ type IronLangVisitor interface {
 	// Visit a parse tree produced by IronLangParser#funcCallArg.
 	VisitFuncCallArg(ctx *FuncCallArgContext) interface{}
 
+	// Visit a parse tree produced by IronLangParser#anonimousFunc.
+	VisitAnonimousFunc(ctx *AnonimousFuncContext) interface{}
+
+	// Visit a parse tree produced by IronLangParser#bodyScope.
+	VisitBodyScope(ctx *BodyScopeContext) interface{}
+
 	// Visit a parse tree produced by IronLangParser#println.
 	VisitPrintln(ctx *PrintlnContext) interface{}
 

@@ -62,6 +62,18 @@ func (s *BaseIronLangListener) EnterFuncCallArg(ctx *FuncCallArgContext) {}
 // ExitFuncCallArg is called when production funcCallArg is exited.
 func (s *BaseIronLangListener) ExitFuncCallArg(ctx *FuncCallArgContext) {}
 
+// EnterAnonimousFunc is called when production anonimousFunc is entered.
+func (s *BaseIronLangListener) EnterAnonimousFunc(ctx *AnonimousFuncContext) {}
+
+// ExitAnonimousFunc is called when production anonimousFunc is exited.
+func (s *BaseIronLangListener) ExitAnonimousFunc(ctx *AnonimousFuncContext) {}
+
+// EnterBodyScope is called when production bodyScope is entered.
+func (s *BaseIronLangListener) EnterBodyScope(ctx *BodyScopeContext) {}
+
+// ExitBodyScope is called when production bodyScope is exited.
+func (s *BaseIronLangListener) ExitBodyScope(ctx *BodyScopeContext) {}
+
 // EnterPrintln is called when production println is entered.
 func (s *BaseIronLangListener) EnterPrintln(ctx *PrintlnContext) {}
 

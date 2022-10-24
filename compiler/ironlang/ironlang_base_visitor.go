@@ -35,6 +35,14 @@ func (v *BaseIronLangVisitor) VisitFuncCallArg(ctx *FuncCallArgContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseIronLangVisitor) VisitAnonimousFunc(ctx *AnonimousFuncContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseIronLangVisitor) VisitBodyScope(ctx *BodyScopeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseIronLangVisitor) VisitPrintln(ctx *PrintlnContext) interface{} {
 	return v.VisitChildren(ctx)
 }

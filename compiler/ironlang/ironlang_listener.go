@@ -28,6 +28,12 @@ type IronLangListener interface {
 	// EnterFuncCallArg is called when entering the funcCallArg production.
 	EnterFuncCallArg(c *FuncCallArgContext)
 
+	// EnterAnonimousFunc is called when entering the anonimousFunc production.
+	EnterAnonimousFunc(c *AnonimousFuncContext)
+
+	// EnterBodyScope is called when entering the bodyScope production.
+	EnterBodyScope(c *BodyScopeContext)
+
 	// EnterPrintln is called when entering the println production.
 	EnterPrintln(c *PrintlnContext)
 
@@ -72,6 +78,12 @@ type IronLangListener interface {
 
 	// ExitFuncCallArg is called when exiting the funcCallArg production.
 	ExitFuncCallArg(c *FuncCallArgContext)
+
+	// ExitAnonimousFunc is called when exiting the anonimousFunc production.
+	ExitAnonimousFunc(c *AnonimousFuncContext)
+
+	// ExitBodyScope is called when exiting the bodyScope production.
+	ExitBodyScope(c *BodyScopeContext)
 
 	// ExitPrintln is called when exiting the println production.
 	ExitPrintln(c *PrintlnContext)

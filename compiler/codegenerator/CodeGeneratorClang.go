@@ -49,6 +49,8 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitFuncCall(val)
 	case *ironlang.FuncCallArgContext:
 		l.VisitFuncCallArg(val)
+	case *ironlang.BodyScopeContext:
+		l.VisitBodyScope(val)
 
 	default:
 		panic("Unknown context")
@@ -81,22 +83,20 @@ func (l *ClangPlus) VisitFuncMain(ctx *ironlang.FuncMainContext) {
 	l.StrBuilder.WriteString("}\n")
 }
 
-func (l *ClangPlus) VisitScope(ctx *ironlang.ScopeContext) {
+func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 
-	l.ScopeLog.EnterScope(utils.GetMD5Hash(ctx.GetText()))
-
-	for _, variable := range ctx.AllVariable() {
-		l.Visit(variable)
+	if ctx.Variable() != nil {
+		l.Visit(ctx.Variable())
 	}
 
-	for _, assignment := range ctx.AllAssignment() {
-		l.Visit(assignment)
+	if ctx.Assignment() != nil {
+		l.Visit(ctx.Assignment())
 	}
 
 	builder := NewStringBuilder()
-	for _, function := range ctx.AllFunction() {
+	if ctx.Function() != nil {
 		c := NewClang(l.ScopeLog)
-		c.Visit(function)
+		c.Visit(ctx.Function())
 		builder.WriteString(c.GetBuilder().String())
 	}
 
@@ -105,12 +105,42 @@ func (l *ClangPlus) VisitScope(ctx *ironlang.ScopeContext) {
 		l.StrFuncBuilder.WriteString(builder.GetBuilder().String())
 	}
 
-	if ctx.Return() != nil {
-		l.Visit(ctx.Return())
+	if ctx.FuncCall() != nil {
+		l.Visit(ctx.FuncCall())
 	}
 
-	for _, funcCall := range ctx.AllFuncCall() {
-		l.Visit(funcCall)
+	//for _, variable := range ctx.AllVariable() {
+	//	l.Visit(variable)
+	//}
+	//
+	//for _, assignment := range ctx.AllAssignment() {
+	//	l.Visit(assignment)
+	//}
+	//
+	//builder := NewStringBuilder()
+	//for _, function := range ctx.AllFunction() {
+	//	c := NewClang(l.ScopeLog)
+	//	c.Visit(function)
+	//	builder.WriteString(c.GetBuilder().String())
+	//}
+	//
+
+	//
+	//for _, funcCall := range ctx.AllFuncCall() {
+	//	l.Visit(funcCall)
+	//}
+}
+
+func (l *ClangPlus) VisitScope(ctx *ironlang.ScopeContext) {
+
+	l.ScopeLog.EnterScope(utils.GetMD5Hash(ctx.GetText()))
+
+	for _, body := range ctx.AllBodyScope() {
+		l.Visit(body)
+	}
+
+	if ctx.Return() != nil {
+		l.Visit(ctx.Return())
 	}
 
 	l.ScopeLog.ExitScope()
@@ -153,7 +183,12 @@ func (l *ClangPlus) VisitFuncCallArg(ctx *ironlang.FuncCallArgContext) {
 }
 
 func (l *ClangPlus) VisitFunction(ctx *ironlang.FunctionContext) {
-	l.StrBuilder.WriteString("\n")
+	//	double (*addNumbers1)(double, double){
+	//[](double a, double b)
+	//	{
+	//	return (a + b);
+	//	}};
+
 	if ctx.DataTypes() != nil {
 		l.Visit(ctx.DataTypes())
 	} else {
@@ -165,7 +200,7 @@ func (l *ClangPlus) VisitFunction(ctx *ironlang.FunctionContext) {
 	l.StrBuilder.WriteString(") ")
 	l.StrBuilder.WriteString("{\n")
 	l.Visit(ctx.Scope())
-	l.StrBuilder.WriteString("}\n")
+	l.StrBuilder.WriteString("};\n")
 }
 
 func (l *ClangPlus) VisitVariable(ctx *ironlang.VariableContext) {
