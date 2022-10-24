@@ -1,7 +1,6 @@
 package codegenerator
 
 import (
-	"fmt"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"iron-lang/compiler/ironlang"
 	"iron-lang/compiler/scopes"
@@ -10,19 +9,17 @@ import (
 )
 
 type ClangPlus struct {
-	AnonymousCount   int
 	StrBuilder       *StringBuilder
 	StrImportBuilder *StringBuilder
 	StrFuncBuilder   *StringBuilder
 	ScopeLog         *scopes.ScopeLog
 }
 
-func NewClang(scopeLog *scopes.ScopeLog, anonymousCount int) *ClangPlus {
+func NewClang(scopeLog *scopes.ScopeLog) *ClangPlus {
 	return &ClangPlus{
 		StrBuilder:       NewStringBuilder(),
 		StrImportBuilder: NewStringBuilder(),
 		ScopeLog:         scopeLog,
-		AnonymousCount:   anonymousCount,
 	}
 }
 
@@ -121,9 +118,8 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 
 	var builder = NewStringBuilder()
 	if ctx.Function() != nil {
-		c := NewClang(l.ScopeLog, l.AnonymousCount)
+		c := NewClang(l.ScopeLog)
 		c.Visit(ctx.Function())
-		l.AnonymousCount = c.AnonymousCount
 		builder.WriteString(c.GetBuilder().String())
 	}
 
@@ -220,15 +216,10 @@ func (l *ClangPlus) VisitFuncCall(ctx *ironlang.FuncCallContext) {
 
 func (l *ClangPlus) VisitAnonymousFunc(ctx *ironlang.AnonimousFuncContext) {
 
-	if ctx.DataTypes() != nil {
-		l.Visit(ctx.DataTypes())
-	} else {
-		l.StrBuilder.WriteString("void ")
-	}
+	//funcName := fmt.Sprintf("anonymous_%v", l.AnonymousCount)
+	//l.StrBuilder.WriteString(funcName)
 
-	funcName := fmt.Sprintf("anonymous_%v", l.AnonymousCount)
-	l.StrBuilder.WriteString(funcName)
-
+	l.StrBuilder.WriteString("[]")
 	if ctx.L_PAREN() != nil {
 		l.StrBuilder.WriteString("(")
 	}
@@ -241,6 +232,14 @@ func (l *ClangPlus) VisitAnonymousFunc(ctx *ironlang.AnonimousFuncContext) {
 		l.StrBuilder.WriteString(")")
 	}
 
+	if ctx.DataTypes() != nil {
+		l.StrBuilder.WriteString("-> ")
+		l.Visit(ctx.DataTypes())
+	} else {
+		l.StrBuilder.WriteString("-> ")
+		l.StrBuilder.WriteString("void ")
+	}
+
 	l.StrBuilder.WriteString("{\n")
 	if ctx.BodyScope() != nil {
 		l.Visit(ctx.BodyScope())
@@ -251,7 +250,7 @@ func (l *ClangPlus) VisitAnonymousFunc(ctx *ironlang.AnonimousFuncContext) {
 	}
 	l.StrBuilder.WriteString("}")
 
-	l.StrBuilder.WriteString(";\n")
+	//l.StrBuilder.WriteString(";\n")
 
 }
 
@@ -327,20 +326,8 @@ func (l *ClangPlus) VisitAssignment(ctx *ironlang.AssignmentContext) {
 		l.Visit(ctx.MathExpression())
 	}
 
-	var builder = NewStringBuilder()
 	if ctx.AnonimousFunc() != nil {
-		l.AnonymousCount += 1
-		c := NewClang(l.ScopeLog, l.AnonymousCount)
-		c.Visit(ctx.AnonimousFunc())
-		builder.WriteString(c.GetBuilder().String())
-
-		funcName := fmt.Sprintf("anonymous_%v", l.AnonymousCount)
-		l.StrBuilder.WriteString(funcName)
-	}
-
-	if len(builder.GetBuilder().String()) > 0 {
-		l.StrFuncBuilder = NewStringBuilder()
-		l.StrFuncBuilder.WriteString(builder.GetBuilder().String())
+		l.Visit(ctx.AnonimousFunc())
 	}
 
 	l.StrBuilder.WriteString(";\n")

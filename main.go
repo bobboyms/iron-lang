@@ -42,7 +42,7 @@ func main() {
 	errors.HasSemanticError(customSemanticErrorListener.Errors)
 
 	//Code generator
-	generator := codegenerator.NewClang(scopes.GetScopeLog(), 0)
+	generator := codegenerator.NewClang(scopes.GetScopeLog())
 	generator.Visit(tree)
 	println(generator.GetBuilder().String())
 	NewFile(generator.GetBuilder())
