@@ -16,6 +16,9 @@ type IronLangListener interface {
 	// EnterFunction is called when entering the function production.
 	EnterFunction(c *FunctionContext)
 
+	// EnterFuncType is called when entering the funcType production.
+	EnterFuncType(c *FuncTypeContext)
+
 	// EnterReturn is called when entering the return production.
 	EnterReturn(c *ReturnContext)
 
@@ -66,6 +69,9 @@ type IronLangListener interface {
 
 	// ExitFunction is called when exiting the function production.
 	ExitFunction(c *FunctionContext)
+
+	// ExitFuncType is called when exiting the funcType production.
+	ExitFuncType(c *FuncTypeContext)
 
 	// ExitReturn is called when exiting the return production.
 	ExitReturn(c *ReturnContext)

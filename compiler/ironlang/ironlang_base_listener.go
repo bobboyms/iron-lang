@@ -38,6 +38,12 @@ func (s *BaseIronLangListener) EnterFunction(ctx *FunctionContext) {}
 // ExitFunction is called when production function is exited.
 func (s *BaseIronLangListener) ExitFunction(ctx *FunctionContext) {}
 
+// EnterFuncType is called when production funcType is entered.
+func (s *BaseIronLangListener) EnterFuncType(ctx *FuncTypeContext) {}
+
+// ExitFuncType is called when production funcType is exited.
+func (s *BaseIronLangListener) ExitFuncType(ctx *FuncTypeContext) {}
+
 // EnterReturn is called when production return is entered.
 func (s *BaseIronLangListener) EnterReturn(ctx *ReturnContext) {}
 

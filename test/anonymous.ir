@@ -1,0 +1,4 @@
+fn main() {
+    let test1 = (x int, y int) int -> x + y
+    test1(2,3)
+}

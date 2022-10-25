@@ -176,6 +176,8 @@ func (l *ClangPlus) VisitScope(ctx *ironlang.ScopeContext) {
 
 func (l *ClangPlus) VisitReturn(ctx *ironlang.ReturnContext) {
 
+	println(ctx.GetText())
+
 	if ctx.RETURN() == nil {
 		if v, ok := ctx.GetParent().(*ironlang.AnonimousFuncContext); ok {
 			if v.DataTypes() != nil {
@@ -192,8 +194,10 @@ func (l *ClangPlus) VisitReturn(ctx *ironlang.ReturnContext) {
 		l.StrBuilder.WriteString("return ")
 	}
 
-	l.Visit(ctx.MathExpression())
-	l.StrBuilder.WriteString(";\n")
+	if ctx.MathExpression() != nil {
+		l.Visit(ctx.MathExpression())
+		l.StrBuilder.WriteString(";\n")
+	}
 }
 
 func (l *ClangPlus) VisitFuncCall(ctx *ironlang.FuncCallContext) {
@@ -207,8 +211,7 @@ func (l *ClangPlus) VisitFuncCall(ctx *ironlang.FuncCallContext) {
 	}
 	l.StrBuilder.WriteString(")")
 
-	v, _ := ctx.GetParent().(*ironlang.FuncCallArgContext)
-	if v == nil {
+	if _, ok := ctx.GetParent().(*ironlang.MathExpressionContext); !ok {
 		l.StrBuilder.WriteString(";\n")
 	}
 
@@ -249,8 +252,6 @@ func (l *ClangPlus) VisitAnonymousFunc(ctx *ironlang.AnonimousFuncContext) {
 		l.Visit(ctx.Return())
 	}
 	l.StrBuilder.WriteString("}")
-
-	//l.StrBuilder.WriteString(";\n")
 
 }
 
@@ -344,6 +345,10 @@ func (l *ClangPlus) VisitMathExpression(ctx *ironlang.MathExpressionContext) {
 
 	if ctx.Atom() != nil {
 		l.Visit(ctx.Atom())
+	}
+
+	if ctx.FuncCall() != nil {
+		l.Visit(ctx.FuncCall())
 	}
 
 	if len(ctx.AllMathExpression()) == 2 {

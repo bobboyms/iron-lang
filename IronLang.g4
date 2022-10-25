@@ -117,6 +117,10 @@ function
     : FN IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? scope
 ;
 
+funcType
+    : IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)?
+;
+
 return
     : (RETURN)? mathExpression
 ;
@@ -145,17 +149,21 @@ variable: (MUT)? LET IDENTIFIER (dataTypes)?;
 
 functionArgs: funcArg (COMMA funcArg)*;
 
-funcArg: (MUT)? IDENTIFIER dataTypes;
+funcArg: (MUT)? IDENTIFIER dataTypes | funcType;
 
-dataTypes: TYPE_INT | TYPE_FLOAT;
+dataTypes:  TYPE_INT | TYPE_FLOAT;
 
-assignment:  IDENTIFIER | variable EQ (mathExpression | (anonimousFunc)?);
+assignment
+    : variable EQ ( mathExpression | (anonimousFunc)?)
+    | IDENTIFIER EQ ( mathExpression | (anonimousFunc)?)
+;
 
 mathExpression
    :  mathExpression  (MULT | DIV)  mathExpression
    |  mathExpression  (PLUS | MINUS) mathExpression
    |  L_PAREN mathExpression R_PAREN
    |  (PLUS | MINUS)? atom
+   |  (PLUS | MINUS)? funcCall
    ;
 
 atom

@@ -19,6 +19,10 @@ func (v *BaseIronLangVisitor) VisitFunction(ctx *FunctionContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseIronLangVisitor) VisitFuncType(ctx *FuncTypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseIronLangVisitor) VisitReturn(ctx *ReturnContext) interface{} {
 	return v.VisitChildren(ctx)
 }

@@ -16,6 +16,9 @@ type IronLangVisitor interface {
 	// Visit a parse tree produced by IronLangParser#function.
 	VisitFunction(ctx *FunctionContext) interface{}
 
+	// Visit a parse tree produced by IronLangParser#funcType.
+	VisitFuncType(ctx *FuncTypeContext) interface{}
+
 	// Visit a parse tree produced by IronLangParser#return.
 	VisitReturn(ctx *ReturnContext) interface{}
 

@@ -43,105 +43,122 @@ func ironlangParserInit() {
 		"TYPE_INT", "TYPE_FLOAT", "IDENTIFIER", "WHITE_SPACE",
 	}
 	staticData.ruleNames = []string{
-		"program", "funcMain", "function", "return", "scope", "funcCall", "funcCallArg",
-		"anonimousFunc", "bodyScope", "println", "variable", "functionArgs",
-		"funcArg", "dataTypes", "assignment", "mathExpression", "atom",
+		"program", "funcMain", "function", "funcType", "return", "scope", "funcCall",
+		"funcCallArg", "anonimousFunc", "bodyScope", "println", "variable",
+		"functionArgs", "funcArg", "dataTypes", "assignment", "mathExpression",
+		"atom",
 	}
 	staticData.predictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
-		4, 1, 27, 211, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
+		4, 1, 27, 242, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
 		4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7,
 		10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15,
-		2, 16, 7, 16, 1, 0, 5, 0, 36, 8, 0, 10, 0, 12, 0, 39, 9, 0, 1, 0, 1, 0,
-		5, 0, 43, 8, 0, 10, 0, 12, 0, 46, 9, 0, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 52,
-		8, 1, 10, 1, 12, 1, 55, 9, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2,
-		1, 2, 1, 2, 5, 2, 66, 8, 2, 10, 2, 12, 2, 69, 9, 2, 3, 2, 71, 8, 2, 1,
-		2, 1, 2, 3, 2, 75, 8, 2, 1, 2, 1, 2, 1, 3, 3, 3, 80, 8, 3, 1, 3, 1, 3,
-		1, 4, 1, 4, 5, 4, 86, 8, 4, 10, 4, 12, 4, 89, 9, 4, 1, 4, 3, 4, 92, 8,
-		4, 1, 4, 1, 4, 1, 5, 1, 5, 1, 5, 1, 5, 1, 5, 5, 5, 101, 8, 5, 10, 5, 12,
-		5, 104, 9, 5, 3, 5, 106, 8, 5, 1, 5, 1, 5, 1, 6, 1, 6, 3, 6, 112, 8, 6,
-		1, 7, 1, 7, 1, 7, 1, 7, 5, 7, 118, 8, 7, 10, 7, 12, 7, 121, 9, 7, 3, 7,
-		123, 8, 7, 1, 7, 1, 7, 3, 7, 127, 8, 7, 1, 7, 1, 7, 3, 7, 131, 8, 7, 1,
-		7, 3, 7, 134, 8, 7, 1, 8, 1, 8, 1, 8, 1, 8, 1, 8, 1, 8, 3, 8, 142, 8, 8,
-		1, 9, 1, 9, 1, 9, 1, 9, 3, 9, 148, 8, 9, 1, 9, 1, 9, 1, 10, 3, 10, 153,
-		8, 10, 1, 10, 1, 10, 1, 10, 3, 10, 158, 8, 10, 1, 11, 1, 11, 1, 11, 5,
-		11, 163, 8, 11, 10, 11, 12, 11, 166, 9, 11, 1, 12, 3, 12, 169, 8, 12, 1,
-		12, 1, 12, 1, 12, 1, 13, 1, 13, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 3, 14,
-		181, 8, 14, 3, 14, 183, 8, 14, 3, 14, 185, 8, 14, 1, 15, 1, 15, 1, 15,
-		1, 15, 1, 15, 1, 15, 3, 15, 193, 8, 15, 1, 15, 3, 15, 196, 8, 15, 1, 15,
-		1, 15, 1, 15, 1, 15, 1, 15, 1, 15, 5, 15, 204, 8, 15, 10, 15, 12, 15, 207,
-		9, 15, 1, 16, 1, 16, 1, 16, 0, 1, 30, 17, 0, 2, 4, 6, 8, 10, 12, 14, 16,
-		18, 20, 22, 24, 26, 28, 30, 32, 0, 4, 1, 0, 24, 25, 1, 0, 4, 5, 1, 0, 6,
-		7, 2, 0, 17, 18, 26, 26, 227, 0, 37, 1, 0, 0, 0, 2, 47, 1, 0, 0, 0, 4,
-		59, 1, 0, 0, 0, 6, 79, 1, 0, 0, 0, 8, 83, 1, 0, 0, 0, 10, 95, 1, 0, 0,
-		0, 12, 111, 1, 0, 0, 0, 14, 113, 1, 0, 0, 0, 16, 141, 1, 0, 0, 0, 18, 143,
-		1, 0, 0, 0, 20, 152, 1, 0, 0, 0, 22, 159, 1, 0, 0, 0, 24, 168, 1, 0, 0,
-		0, 26, 173, 1, 0, 0, 0, 28, 184, 1, 0, 0, 0, 30, 195, 1, 0, 0, 0, 32, 208,
-		1, 0, 0, 0, 34, 36, 3, 4, 2, 0, 35, 34, 1, 0, 0, 0, 36, 39, 1, 0, 0, 0,
-		37, 35, 1, 0, 0, 0, 37, 38, 1, 0, 0, 0, 38, 40, 1, 0, 0, 0, 39, 37, 1,
-		0, 0, 0, 40, 44, 3, 2, 1, 0, 41, 43, 3, 4, 2, 0, 42, 41, 1, 0, 0, 0, 43,
-		46, 1, 0, 0, 0, 44, 42, 1, 0, 0, 0, 44, 45, 1, 0, 0, 0, 45, 1, 1, 0, 0,
-		0, 46, 44, 1, 0, 0, 0, 47, 48, 5, 19, 0, 0, 48, 49, 5, 1, 0, 0, 49, 53,
-		5, 9, 0, 0, 50, 52, 3, 22, 11, 0, 51, 50, 1, 0, 0, 0, 52, 55, 1, 0, 0,
-		0, 53, 51, 1, 0, 0, 0, 53, 54, 1, 0, 0, 0, 54, 56, 1, 0, 0, 0, 55, 53,
-		1, 0, 0, 0, 56, 57, 5, 10, 0, 0, 57, 58, 3, 8, 4, 0, 58, 3, 1, 0, 0, 0,
-		59, 60, 5, 19, 0, 0, 60, 61, 5, 26, 0, 0, 61, 70, 5, 9, 0, 0, 62, 67, 3,
-		22, 11, 0, 63, 64, 5, 3, 0, 0, 64, 66, 3, 22, 11, 0, 65, 63, 1, 0, 0, 0,
-		66, 69, 1, 0, 0, 0, 67, 65, 1, 0, 0, 0, 67, 68, 1, 0, 0, 0, 68, 71, 1,
-		0, 0, 0, 69, 67, 1, 0, 0, 0, 70, 62, 1, 0, 0, 0, 70, 71, 1, 0, 0, 0, 71,
-		72, 1, 0, 0, 0, 72, 74, 5, 10, 0, 0, 73, 75, 3, 26, 13, 0, 74, 73, 1, 0,
-		0, 0, 74, 75, 1, 0, 0, 0, 75, 76, 1, 0, 0, 0, 76, 77, 3, 8, 4, 0, 77, 5,
-		1, 0, 0, 0, 78, 80, 5, 23, 0, 0, 79, 78, 1, 0, 0, 0, 79, 80, 1, 0, 0, 0,
-		80, 81, 1, 0, 0, 0, 81, 82, 3, 30, 15, 0, 82, 7, 1, 0, 0, 0, 83, 87, 5,
-		11, 0, 0, 84, 86, 3, 16, 8, 0, 85, 84, 1, 0, 0, 0, 86, 89, 1, 0, 0, 0,
-		87, 85, 1, 0, 0, 0, 87, 88, 1, 0, 0, 0, 88, 91, 1, 0, 0, 0, 89, 87, 1,
-		0, 0, 0, 90, 92, 3, 6, 3, 0, 91, 90, 1, 0, 0, 0, 91, 92, 1, 0, 0, 0, 92,
-		93, 1, 0, 0, 0, 93, 94, 5, 12, 0, 0, 94, 9, 1, 0, 0, 0, 95, 96, 5, 26,
-		0, 0, 96, 105, 5, 9, 0, 0, 97, 102, 3, 12, 6, 0, 98, 99, 5, 3, 0, 0, 99,
-		101, 3, 12, 6, 0, 100, 98, 1, 0, 0, 0, 101, 104, 1, 0, 0, 0, 102, 100,
-		1, 0, 0, 0, 102, 103, 1, 0, 0, 0, 103, 106, 1, 0, 0, 0, 104, 102, 1, 0,
-		0, 0, 105, 97, 1, 0, 0, 0, 105, 106, 1, 0, 0, 0, 106, 107, 1, 0, 0, 0,
-		107, 108, 5, 10, 0, 0, 108, 11, 1, 0, 0, 0, 109, 112, 3, 30, 15, 0, 110,
-		112, 3, 10, 5, 0, 111, 109, 1, 0, 0, 0, 111, 110, 1, 0, 0, 0, 112, 13,
-		1, 0, 0, 0, 113, 122, 5, 9, 0, 0, 114, 119, 3, 22, 11, 0, 115, 116, 5,
-		3, 0, 0, 116, 118, 3, 22, 11, 0, 117, 115, 1, 0, 0, 0, 118, 121, 1, 0,
-		0, 0, 119, 117, 1, 0, 0, 0, 119, 120, 1, 0, 0, 0, 120, 123, 1, 0, 0, 0,
-		121, 119, 1, 0, 0, 0, 122, 114, 1, 0, 0, 0, 122, 123, 1, 0, 0, 0, 123,
-		124, 1, 0, 0, 0, 124, 126, 5, 10, 0, 0, 125, 127, 3, 26, 13, 0, 126, 125,
-		1, 0, 0, 0, 126, 127, 1, 0, 0, 0, 127, 128, 1, 0, 0, 0, 128, 130, 5, 16,
-		0, 0, 129, 131, 3, 16, 8, 0, 130, 129, 1, 0, 0, 0, 130, 131, 1, 0, 0, 0,
-		131, 133, 1, 0, 0, 0, 132, 134, 3, 6, 3, 0, 133, 132, 1, 0, 0, 0, 133,
-		134, 1, 0, 0, 0, 134, 15, 1, 0, 0, 0, 135, 142, 3, 20, 10, 0, 136, 142,
-		3, 28, 14, 0, 137, 142, 3, 4, 2, 0, 138, 142, 3, 10, 5, 0, 139, 142, 3,
-		8, 4, 0, 140, 142, 3, 18, 9, 0, 141, 135, 1, 0, 0, 0, 141, 136, 1, 0, 0,
-		0, 141, 137, 1, 0, 0, 0, 141, 138, 1, 0, 0, 0, 141, 139, 1, 0, 0, 0, 141,
-		140, 1, 0, 0, 0, 142, 17, 1, 0, 0, 0, 143, 144, 5, 20, 0, 0, 144, 147,
-		5, 9, 0, 0, 145, 148, 3, 20, 10, 0, 146, 148, 5, 26, 0, 0, 147, 145, 1,
-		0, 0, 0, 147, 146, 1, 0, 0, 0, 148, 149, 1, 0, 0, 0, 149, 150, 5, 10, 0,
-		0, 150, 19, 1, 0, 0, 0, 151, 153, 5, 22, 0, 0, 152, 151, 1, 0, 0, 0, 152,
-		153, 1, 0, 0, 0, 153, 154, 1, 0, 0, 0, 154, 155, 5, 21, 0, 0, 155, 157,
-		5, 26, 0, 0, 156, 158, 3, 26, 13, 0, 157, 156, 1, 0, 0, 0, 157, 158, 1,
-		0, 0, 0, 158, 21, 1, 0, 0, 0, 159, 164, 3, 24, 12, 0, 160, 161, 5, 3, 0,
-		0, 161, 163, 3, 24, 12, 0, 162, 160, 1, 0, 0, 0, 163, 166, 1, 0, 0, 0,
-		164, 162, 1, 0, 0, 0, 164, 165, 1, 0, 0, 0, 165, 23, 1, 0, 0, 0, 166, 164,
-		1, 0, 0, 0, 167, 169, 5, 22, 0, 0, 168, 167, 1, 0, 0, 0, 168, 169, 1, 0,
-		0, 0, 169, 170, 1, 0, 0, 0, 170, 171, 5, 26, 0, 0, 171, 172, 3, 26, 13,
-		0, 172, 25, 1, 0, 0, 0, 173, 174, 7, 0, 0, 0, 174, 27, 1, 0, 0, 0, 175,
-		185, 5, 26, 0, 0, 176, 177, 3, 20, 10, 0, 177, 182, 5, 8, 0, 0, 178, 183,
-		3, 30, 15, 0, 179, 181, 3, 14, 7, 0, 180, 179, 1, 0, 0, 0, 180, 181, 1,
-		0, 0, 0, 181, 183, 1, 0, 0, 0, 182, 178, 1, 0, 0, 0, 182, 180, 1, 0, 0,
-		0, 183, 185, 1, 0, 0, 0, 184, 175, 1, 0, 0, 0, 184, 176, 1, 0, 0, 0, 185,
-		29, 1, 0, 0, 0, 186, 187, 6, 15, -1, 0, 187, 188, 5, 9, 0, 0, 188, 189,
-		3, 30, 15, 0, 189, 190, 5, 10, 0, 0, 190, 196, 1, 0, 0, 0, 191, 193, 7,
-		1, 0, 0, 192, 191, 1, 0, 0, 0, 192, 193, 1, 0, 0, 0, 193, 194, 1, 0, 0,
-		0, 194, 196, 3, 32, 16, 0, 195, 186, 1, 0, 0, 0, 195, 192, 1, 0, 0, 0,
-		196, 205, 1, 0, 0, 0, 197, 198, 10, 4, 0, 0, 198, 199, 7, 2, 0, 0, 199,
-		204, 3, 30, 15, 5, 200, 201, 10, 3, 0, 0, 201, 202, 7, 1, 0, 0, 202, 204,
-		3, 30, 15, 4, 203, 197, 1, 0, 0, 0, 203, 200, 1, 0, 0, 0, 204, 207, 1,
-		0, 0, 0, 205, 203, 1, 0, 0, 0, 205, 206, 1, 0, 0, 0, 206, 31, 1, 0, 0,
-		0, 207, 205, 1, 0, 0, 0, 208, 209, 7, 3, 0, 0, 209, 33, 1, 0, 0, 0, 30,
-		37, 44, 53, 67, 70, 74, 79, 87, 91, 102, 105, 111, 119, 122, 126, 130,
-		133, 141, 147, 152, 157, 164, 168, 180, 182, 184, 192, 195, 203, 205,
+		2, 16, 7, 16, 2, 17, 7, 17, 1, 0, 5, 0, 38, 8, 0, 10, 0, 12, 0, 41, 9,
+		0, 1, 0, 1, 0, 5, 0, 45, 8, 0, 10, 0, 12, 0, 48, 9, 0, 1, 1, 1, 1, 1, 1,
+		1, 1, 5, 1, 54, 8, 1, 10, 1, 12, 1, 57, 9, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1,
+		2, 1, 2, 1, 2, 1, 2, 1, 2, 5, 2, 68, 8, 2, 10, 2, 12, 2, 71, 9, 2, 3, 2,
+		73, 8, 2, 1, 2, 1, 2, 3, 2, 77, 8, 2, 1, 2, 1, 2, 1, 3, 1, 3, 1, 3, 1,
+		3, 1, 3, 5, 3, 86, 8, 3, 10, 3, 12, 3, 89, 9, 3, 3, 3, 91, 8, 3, 1, 3,
+		1, 3, 3, 3, 95, 8, 3, 1, 4, 3, 4, 98, 8, 4, 1, 4, 1, 4, 1, 5, 1, 5, 5,
+		5, 104, 8, 5, 10, 5, 12, 5, 107, 9, 5, 1, 5, 3, 5, 110, 8, 5, 1, 5, 1,
+		5, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 5, 6, 119, 8, 6, 10, 6, 12, 6, 122, 9,
+		6, 3, 6, 124, 8, 6, 1, 6, 1, 6, 1, 7, 1, 7, 3, 7, 130, 8, 7, 1, 8, 1, 8,
+		1, 8, 1, 8, 5, 8, 136, 8, 8, 10, 8, 12, 8, 139, 9, 8, 3, 8, 141, 8, 8,
+		1, 8, 1, 8, 3, 8, 145, 8, 8, 1, 8, 1, 8, 3, 8, 149, 8, 8, 1, 8, 3, 8, 152,
+		8, 8, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 3, 9, 160, 8, 9, 1, 10, 1, 10,
+		1, 10, 1, 10, 3, 10, 166, 8, 10, 1, 10, 1, 10, 1, 11, 3, 11, 171, 8, 11,
+		1, 11, 1, 11, 1, 11, 3, 11, 176, 8, 11, 1, 12, 1, 12, 1, 12, 5, 12, 181,
+		8, 12, 10, 12, 12, 12, 184, 9, 12, 1, 13, 3, 13, 187, 8, 13, 1, 13, 1,
+		13, 1, 13, 3, 13, 192, 8, 13, 1, 14, 1, 14, 1, 15, 1, 15, 1, 15, 1, 15,
+		3, 15, 200, 8, 15, 3, 15, 202, 8, 15, 1, 15, 1, 15, 1, 15, 1, 15, 3, 15,
+		208, 8, 15, 3, 15, 210, 8, 15, 3, 15, 212, 8, 15, 1, 16, 1, 16, 1, 16,
+		1, 16, 1, 16, 1, 16, 3, 16, 220, 8, 16, 1, 16, 1, 16, 3, 16, 224, 8, 16,
+		1, 16, 3, 16, 227, 8, 16, 1, 16, 1, 16, 1, 16, 1, 16, 1, 16, 1, 16, 5,
+		16, 235, 8, 16, 10, 16, 12, 16, 238, 9, 16, 1, 17, 1, 17, 1, 17, 0, 1,
+		32, 18, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
+		34, 0, 4, 1, 0, 24, 25, 1, 0, 4, 5, 1, 0, 6, 7, 2, 0, 17, 18, 26, 26, 265,
+		0, 39, 1, 0, 0, 0, 2, 49, 1, 0, 0, 0, 4, 61, 1, 0, 0, 0, 6, 80, 1, 0, 0,
+		0, 8, 97, 1, 0, 0, 0, 10, 101, 1, 0, 0, 0, 12, 113, 1, 0, 0, 0, 14, 129,
+		1, 0, 0, 0, 16, 131, 1, 0, 0, 0, 18, 159, 1, 0, 0, 0, 20, 161, 1, 0, 0,
+		0, 22, 170, 1, 0, 0, 0, 24, 177, 1, 0, 0, 0, 26, 191, 1, 0, 0, 0, 28, 193,
+		1, 0, 0, 0, 30, 211, 1, 0, 0, 0, 32, 226, 1, 0, 0, 0, 34, 239, 1, 0, 0,
+		0, 36, 38, 3, 4, 2, 0, 37, 36, 1, 0, 0, 0, 38, 41, 1, 0, 0, 0, 39, 37,
+		1, 0, 0, 0, 39, 40, 1, 0, 0, 0, 40, 42, 1, 0, 0, 0, 41, 39, 1, 0, 0, 0,
+		42, 46, 3, 2, 1, 0, 43, 45, 3, 4, 2, 0, 44, 43, 1, 0, 0, 0, 45, 48, 1,
+		0, 0, 0, 46, 44, 1, 0, 0, 0, 46, 47, 1, 0, 0, 0, 47, 1, 1, 0, 0, 0, 48,
+		46, 1, 0, 0, 0, 49, 50, 5, 19, 0, 0, 50, 51, 5, 1, 0, 0, 51, 55, 5, 9,
+		0, 0, 52, 54, 3, 24, 12, 0, 53, 52, 1, 0, 0, 0, 54, 57, 1, 0, 0, 0, 55,
+		53, 1, 0, 0, 0, 55, 56, 1, 0, 0, 0, 56, 58, 1, 0, 0, 0, 57, 55, 1, 0, 0,
+		0, 58, 59, 5, 10, 0, 0, 59, 60, 3, 10, 5, 0, 60, 3, 1, 0, 0, 0, 61, 62,
+		5, 19, 0, 0, 62, 63, 5, 26, 0, 0, 63, 72, 5, 9, 0, 0, 64, 69, 3, 24, 12,
+		0, 65, 66, 5, 3, 0, 0, 66, 68, 3, 24, 12, 0, 67, 65, 1, 0, 0, 0, 68, 71,
+		1, 0, 0, 0, 69, 67, 1, 0, 0, 0, 69, 70, 1, 0, 0, 0, 70, 73, 1, 0, 0, 0,
+		71, 69, 1, 0, 0, 0, 72, 64, 1, 0, 0, 0, 72, 73, 1, 0, 0, 0, 73, 74, 1,
+		0, 0, 0, 74, 76, 5, 10, 0, 0, 75, 77, 3, 28, 14, 0, 76, 75, 1, 0, 0, 0,
+		76, 77, 1, 0, 0, 0, 77, 78, 1, 0, 0, 0, 78, 79, 3, 10, 5, 0, 79, 5, 1,
+		0, 0, 0, 80, 81, 5, 26, 0, 0, 81, 90, 5, 9, 0, 0, 82, 87, 3, 24, 12, 0,
+		83, 84, 5, 3, 0, 0, 84, 86, 3, 24, 12, 0, 85, 83, 1, 0, 0, 0, 86, 89, 1,
+		0, 0, 0, 87, 85, 1, 0, 0, 0, 87, 88, 1, 0, 0, 0, 88, 91, 1, 0, 0, 0, 89,
+		87, 1, 0, 0, 0, 90, 82, 1, 0, 0, 0, 90, 91, 1, 0, 0, 0, 91, 92, 1, 0, 0,
+		0, 92, 94, 5, 10, 0, 0, 93, 95, 3, 28, 14, 0, 94, 93, 1, 0, 0, 0, 94, 95,
+		1, 0, 0, 0, 95, 7, 1, 0, 0, 0, 96, 98, 5, 23, 0, 0, 97, 96, 1, 0, 0, 0,
+		97, 98, 1, 0, 0, 0, 98, 99, 1, 0, 0, 0, 99, 100, 3, 32, 16, 0, 100, 9,
+		1, 0, 0, 0, 101, 105, 5, 11, 0, 0, 102, 104, 3, 18, 9, 0, 103, 102, 1,
+		0, 0, 0, 104, 107, 1, 0, 0, 0, 105, 103, 1, 0, 0, 0, 105, 106, 1, 0, 0,
+		0, 106, 109, 1, 0, 0, 0, 107, 105, 1, 0, 0, 0, 108, 110, 3, 8, 4, 0, 109,
+		108, 1, 0, 0, 0, 109, 110, 1, 0, 0, 0, 110, 111, 1, 0, 0, 0, 111, 112,
+		5, 12, 0, 0, 112, 11, 1, 0, 0, 0, 113, 114, 5, 26, 0, 0, 114, 123, 5, 9,
+		0, 0, 115, 120, 3, 14, 7, 0, 116, 117, 5, 3, 0, 0, 117, 119, 3, 14, 7,
+		0, 118, 116, 1, 0, 0, 0, 119, 122, 1, 0, 0, 0, 120, 118, 1, 0, 0, 0, 120,
+		121, 1, 0, 0, 0, 121, 124, 1, 0, 0, 0, 122, 120, 1, 0, 0, 0, 123, 115,
+		1, 0, 0, 0, 123, 124, 1, 0, 0, 0, 124, 125, 1, 0, 0, 0, 125, 126, 5, 10,
+		0, 0, 126, 13, 1, 0, 0, 0, 127, 130, 3, 32, 16, 0, 128, 130, 3, 12, 6,
+		0, 129, 127, 1, 0, 0, 0, 129, 128, 1, 0, 0, 0, 130, 15, 1, 0, 0, 0, 131,
+		140, 5, 9, 0, 0, 132, 137, 3, 24, 12, 0, 133, 134, 5, 3, 0, 0, 134, 136,
+		3, 24, 12, 0, 135, 133, 1, 0, 0, 0, 136, 139, 1, 0, 0, 0, 137, 135, 1,
+		0, 0, 0, 137, 138, 1, 0, 0, 0, 138, 141, 1, 0, 0, 0, 139, 137, 1, 0, 0,
+		0, 140, 132, 1, 0, 0, 0, 140, 141, 1, 0, 0, 0, 141, 142, 1, 0, 0, 0, 142,
+		144, 5, 10, 0, 0, 143, 145, 3, 28, 14, 0, 144, 143, 1, 0, 0, 0, 144, 145,
+		1, 0, 0, 0, 145, 146, 1, 0, 0, 0, 146, 148, 5, 16, 0, 0, 147, 149, 3, 18,
+		9, 0, 148, 147, 1, 0, 0, 0, 148, 149, 1, 0, 0, 0, 149, 151, 1, 0, 0, 0,
+		150, 152, 3, 8, 4, 0, 151, 150, 1, 0, 0, 0, 151, 152, 1, 0, 0, 0, 152,
+		17, 1, 0, 0, 0, 153, 160, 3, 22, 11, 0, 154, 160, 3, 30, 15, 0, 155, 160,
+		3, 4, 2, 0, 156, 160, 3, 12, 6, 0, 157, 160, 3, 10, 5, 0, 158, 160, 3,
+		20, 10, 0, 159, 153, 1, 0, 0, 0, 159, 154, 1, 0, 0, 0, 159, 155, 1, 0,
+		0, 0, 159, 156, 1, 0, 0, 0, 159, 157, 1, 0, 0, 0, 159, 158, 1, 0, 0, 0,
+		160, 19, 1, 0, 0, 0, 161, 162, 5, 20, 0, 0, 162, 165, 5, 9, 0, 0, 163,
+		166, 3, 22, 11, 0, 164, 166, 5, 26, 0, 0, 165, 163, 1, 0, 0, 0, 165, 164,
+		1, 0, 0, 0, 166, 167, 1, 0, 0, 0, 167, 168, 5, 10, 0, 0, 168, 21, 1, 0,
+		0, 0, 169, 171, 5, 22, 0, 0, 170, 169, 1, 0, 0, 0, 170, 171, 1, 0, 0, 0,
+		171, 172, 1, 0, 0, 0, 172, 173, 5, 21, 0, 0, 173, 175, 5, 26, 0, 0, 174,
+		176, 3, 28, 14, 0, 175, 174, 1, 0, 0, 0, 175, 176, 1, 0, 0, 0, 176, 23,
+		1, 0, 0, 0, 177, 182, 3, 26, 13, 0, 178, 179, 5, 3, 0, 0, 179, 181, 3,
+		26, 13, 0, 180, 178, 1, 0, 0, 0, 181, 184, 1, 0, 0, 0, 182, 180, 1, 0,
+		0, 0, 182, 183, 1, 0, 0, 0, 183, 25, 1, 0, 0, 0, 184, 182, 1, 0, 0, 0,
+		185, 187, 5, 22, 0, 0, 186, 185, 1, 0, 0, 0, 186, 187, 1, 0, 0, 0, 187,
+		188, 1, 0, 0, 0, 188, 189, 5, 26, 0, 0, 189, 192, 3, 28, 14, 0, 190, 192,
+		3, 6, 3, 0, 191, 186, 1, 0, 0, 0, 191, 190, 1, 0, 0, 0, 192, 27, 1, 0,
+		0, 0, 193, 194, 7, 0, 0, 0, 194, 29, 1, 0, 0, 0, 195, 196, 3, 22, 11, 0,
+		196, 201, 5, 8, 0, 0, 197, 202, 3, 32, 16, 0, 198, 200, 3, 16, 8, 0, 199,
+		198, 1, 0, 0, 0, 199, 200, 1, 0, 0, 0, 200, 202, 1, 0, 0, 0, 201, 197,
+		1, 0, 0, 0, 201, 199, 1, 0, 0, 0, 202, 212, 1, 0, 0, 0, 203, 204, 5, 26,
+		0, 0, 204, 209, 5, 8, 0, 0, 205, 210, 3, 32, 16, 0, 206, 208, 3, 16, 8,
+		0, 207, 206, 1, 0, 0, 0, 207, 208, 1, 0, 0, 0, 208, 210, 1, 0, 0, 0, 209,
+		205, 1, 0, 0, 0, 209, 207, 1, 0, 0, 0, 210, 212, 1, 0, 0, 0, 211, 195,
+		1, 0, 0, 0, 211, 203, 1, 0, 0, 0, 212, 31, 1, 0, 0, 0, 213, 214, 6, 16,
+		-1, 0, 214, 215, 5, 9, 0, 0, 215, 216, 3, 32, 16, 0, 216, 217, 5, 10, 0,
+		0, 217, 227, 1, 0, 0, 0, 218, 220, 7, 1, 0, 0, 219, 218, 1, 0, 0, 0, 219,
+		220, 1, 0, 0, 0, 220, 221, 1, 0, 0, 0, 221, 227, 3, 34, 17, 0, 222, 224,
+		7, 1, 0, 0, 223, 222, 1, 0, 0, 0, 223, 224, 1, 0, 0, 0, 224, 225, 1, 0,
+		0, 0, 225, 227, 3, 12, 6, 0, 226, 213, 1, 0, 0, 0, 226, 219, 1, 0, 0, 0,
+		226, 223, 1, 0, 0, 0, 227, 236, 1, 0, 0, 0, 228, 229, 10, 5, 0, 0, 229,
+		230, 7, 2, 0, 0, 230, 235, 3, 32, 16, 6, 231, 232, 10, 4, 0, 0, 232, 233,
+		7, 1, 0, 0, 233, 235, 3, 32, 16, 5, 234, 228, 1, 0, 0, 0, 234, 231, 1,
+		0, 0, 0, 235, 238, 1, 0, 0, 0, 236, 234, 1, 0, 0, 0, 236, 237, 1, 0, 0,
+		0, 237, 33, 1, 0, 0, 0, 238, 236, 1, 0, 0, 0, 239, 240, 7, 3, 0, 0, 240,
+		35, 1, 0, 0, 0, 37, 39, 46, 55, 69, 72, 76, 87, 90, 94, 97, 105, 109, 120,
+		123, 129, 137, 140, 144, 148, 151, 159, 165, 170, 175, 182, 186, 191, 199,
+		201, 207, 209, 211, 219, 223, 226, 234, 236,
 	}
 	deserializer := antlr.NewATNDeserializer(nil)
 	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
@@ -214,20 +231,21 @@ const (
 	IronLangParserRULE_program        = 0
 	IronLangParserRULE_funcMain       = 1
 	IronLangParserRULE_function       = 2
-	IronLangParserRULE_return         = 3
-	IronLangParserRULE_scope          = 4
-	IronLangParserRULE_funcCall       = 5
-	IronLangParserRULE_funcCallArg    = 6
-	IronLangParserRULE_anonimousFunc  = 7
-	IronLangParserRULE_bodyScope      = 8
-	IronLangParserRULE_println        = 9
-	IronLangParserRULE_variable       = 10
-	IronLangParserRULE_functionArgs   = 11
-	IronLangParserRULE_funcArg        = 12
-	IronLangParserRULE_dataTypes      = 13
-	IronLangParserRULE_assignment     = 14
-	IronLangParserRULE_mathExpression = 15
-	IronLangParserRULE_atom           = 16
+	IronLangParserRULE_funcType       = 3
+	IronLangParserRULE_return         = 4
+	IronLangParserRULE_scope          = 5
+	IronLangParserRULE_funcCall       = 6
+	IronLangParserRULE_funcCallArg    = 7
+	IronLangParserRULE_anonimousFunc  = 8
+	IronLangParserRULE_bodyScope      = 9
+	IronLangParserRULE_println        = 10
+	IronLangParserRULE_variable       = 11
+	IronLangParserRULE_functionArgs   = 12
+	IronLangParserRULE_funcArg        = 13
+	IronLangParserRULE_dataTypes      = 14
+	IronLangParserRULE_assignment     = 15
+	IronLangParserRULE_mathExpression = 16
+	IronLangParserRULE_atom           = 17
 )
 
 // IProgramContext is an interface to support dynamic dispatch.
@@ -382,37 +400,37 @@ func (p *IronLangParser) Program() (localctx IProgramContext) {
 	var _alt int
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(37)
+	p.SetState(39)
 	p.GetErrorHandler().Sync(p)
 	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 0, p.GetParserRuleContext())
 
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
 			{
-				p.SetState(34)
+				p.SetState(36)
 				p.Function()
 			}
 
 		}
-		p.SetState(39)
+		p.SetState(41)
 		p.GetErrorHandler().Sync(p)
 		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 0, p.GetParserRuleContext())
 	}
 	{
-		p.SetState(40)
+		p.SetState(42)
 		p.FuncMain()
 	}
-	p.SetState(44)
+	p.SetState(46)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	for _la == IronLangParserFN {
 		{
-			p.SetState(41)
+			p.SetState(43)
 			p.Function()
 		}
 
-		p.SetState(46)
+		p.SetState(48)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 	}
@@ -583,37 +601,37 @@ func (p *IronLangParser) FuncMain() (localctx IFuncMainContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(47)
+		p.SetState(49)
 		p.Match(IronLangParserFN)
 	}
 	{
-		p.SetState(48)
+		p.SetState(50)
 		p.Match(IronLangParserT__0)
 	}
 	{
-		p.SetState(49)
+		p.SetState(51)
 		p.Match(IronLangParserL_PAREN)
 	}
-	p.SetState(53)
+	p.SetState(55)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	for _la == IronLangParserMUT || _la == IronLangParserIDENTIFIER {
 		{
-			p.SetState(50)
+			p.SetState(52)
 			p.FunctionArgs()
 		}
 
-		p.SetState(55)
+		p.SetState(57)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 	}
 	{
-		p.SetState(56)
+		p.SetState(58)
 		p.Match(IronLangParserR_PAREN)
 	}
 	{
-		p.SetState(57)
+		p.SetState(59)
 		p.Scope()
 	}
 
@@ -811,64 +829,290 @@ func (p *IronLangParser) Function() (localctx IFunctionContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(59)
+		p.SetState(61)
 		p.Match(IronLangParserFN)
 	}
 	{
-		p.SetState(60)
+		p.SetState(62)
 		p.Match(IronLangParserIDENTIFIER)
 	}
 	{
-		p.SetState(61)
+		p.SetState(63)
 		p.Match(IronLangParserL_PAREN)
 	}
-	p.SetState(70)
+	p.SetState(72)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == IronLangParserMUT || _la == IronLangParserIDENTIFIER {
 		{
-			p.SetState(62)
+			p.SetState(64)
 			p.FunctionArgs()
 		}
-		p.SetState(67)
+		p.SetState(69)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
 		for _la == IronLangParserCOMMA {
 			{
-				p.SetState(63)
+				p.SetState(65)
 				p.Match(IronLangParserCOMMA)
 			}
 			{
-				p.SetState(64)
+				p.SetState(66)
 				p.FunctionArgs()
 			}
 
-			p.SetState(69)
+			p.SetState(71)
 			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
 		}
 
 	}
 	{
-		p.SetState(72)
+		p.SetState(74)
 		p.Match(IronLangParserR_PAREN)
 	}
-	p.SetState(74)
+	p.SetState(76)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == IronLangParserTYPE_INT || _la == IronLangParserTYPE_FLOAT {
 		{
-			p.SetState(73)
+			p.SetState(75)
 			p.DataTypes()
 		}
 
 	}
 	{
-		p.SetState(76)
+		p.SetState(78)
 		p.Scope()
+	}
+
+	return localctx
+}
+
+// IFuncTypeContext is an interface to support dynamic dispatch.
+type IFuncTypeContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsFuncTypeContext differentiates from other interfaces.
+	IsFuncTypeContext()
+}
+
+type FuncTypeContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyFuncTypeContext() *FuncTypeContext {
+	var p = new(FuncTypeContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = IronLangParserRULE_funcType
+	return p
+}
+
+func (*FuncTypeContext) IsFuncTypeContext() {}
+
+func NewFuncTypeContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *FuncTypeContext {
+	var p = new(FuncTypeContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = IronLangParserRULE_funcType
+
+	return p
+}
+
+func (s *FuncTypeContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *FuncTypeContext) IDENTIFIER() antlr.TerminalNode {
+	return s.GetToken(IronLangParserIDENTIFIER, 0)
+}
+
+func (s *FuncTypeContext) L_PAREN() antlr.TerminalNode {
+	return s.GetToken(IronLangParserL_PAREN, 0)
+}
+
+func (s *FuncTypeContext) R_PAREN() antlr.TerminalNode {
+	return s.GetToken(IronLangParserR_PAREN, 0)
+}
+
+func (s *FuncTypeContext) AllFunctionArgs() []IFunctionArgsContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IFunctionArgsContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IFunctionArgsContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IFunctionArgsContext); ok {
+			tst[i] = t.(IFunctionArgsContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *FuncTypeContext) FunctionArgs(i int) IFunctionArgsContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IFunctionArgsContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IFunctionArgsContext)
+}
+
+func (s *FuncTypeContext) DataTypes() IDataTypesContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IDataTypesContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IDataTypesContext)
+}
+
+func (s *FuncTypeContext) AllCOMMA() []antlr.TerminalNode {
+	return s.GetTokens(IronLangParserCOMMA)
+}
+
+func (s *FuncTypeContext) COMMA(i int) antlr.TerminalNode {
+	return s.GetToken(IronLangParserCOMMA, i)
+}
+
+func (s *FuncTypeContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *FuncTypeContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *FuncTypeContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(IronLangListener); ok {
+		listenerT.EnterFuncType(s)
+	}
+}
+
+func (s *FuncTypeContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(IronLangListener); ok {
+		listenerT.ExitFuncType(s)
+	}
+}
+
+func (s *FuncTypeContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case IronLangVisitor:
+		return t.VisitFuncType(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
+func (p *IronLangParser) FuncType() (localctx IFuncTypeContext) {
+	this := p
+	_ = this
+
+	localctx = NewFuncTypeContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 6, IronLangParserRULE_funcType)
+	var _la int
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(80)
+		p.Match(IronLangParserIDENTIFIER)
+	}
+	{
+		p.SetState(81)
+		p.Match(IronLangParserL_PAREN)
+	}
+	p.SetState(90)
+	p.GetErrorHandler().Sync(p)
+	_la = p.GetTokenStream().LA(1)
+
+	if _la == IronLangParserMUT || _la == IronLangParserIDENTIFIER {
+		{
+			p.SetState(82)
+			p.FunctionArgs()
+		}
+		p.SetState(87)
+		p.GetErrorHandler().Sync(p)
+		_la = p.GetTokenStream().LA(1)
+
+		for _la == IronLangParserCOMMA {
+			{
+				p.SetState(83)
+				p.Match(IronLangParserCOMMA)
+			}
+			{
+				p.SetState(84)
+				p.FunctionArgs()
+			}
+
+			p.SetState(89)
+			p.GetErrorHandler().Sync(p)
+			_la = p.GetTokenStream().LA(1)
+		}
+
+	}
+	{
+		p.SetState(92)
+		p.Match(IronLangParserR_PAREN)
+	}
+	p.SetState(94)
+	p.GetErrorHandler().Sync(p)
+	_la = p.GetTokenStream().LA(1)
+
+	if _la == IronLangParserTYPE_INT || _la == IronLangParserTYPE_FLOAT {
+		{
+			p.SetState(93)
+			p.DataTypes()
+		}
+
 	}
 
 	return localctx
@@ -967,7 +1211,7 @@ func (p *IronLangParser) Return() (localctx IReturnContext) {
 	_ = this
 
 	localctx = NewReturnContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 6, IronLangParserRULE_return)
+	p.EnterRule(localctx, 8, IronLangParserRULE_return)
 	var _la int
 
 	defer func() {
@@ -987,19 +1231,19 @@ func (p *IronLangParser) Return() (localctx IReturnContext) {
 	}()
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(79)
+	p.SetState(97)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == IronLangParserRETURN {
 		{
-			p.SetState(78)
+			p.SetState(96)
 			p.Match(IronLangParserRETURN)
 		}
 
 	}
 	{
-		p.SetState(81)
+		p.SetState(99)
 		p.mathExpression(0)
 	}
 
@@ -1144,7 +1388,7 @@ func (p *IronLangParser) Scope() (localctx IScopeContext) {
 	_ = this
 
 	localctx = NewScopeContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 8, IronLangParserRULE_scope)
+	p.EnterRule(localctx, 10, IronLangParserRULE_scope)
 	var _la int
 
 	defer func() {
@@ -1167,38 +1411,38 @@ func (p *IronLangParser) Scope() (localctx IScopeContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(83)
+		p.SetState(101)
 		p.Match(IronLangParserL_CURLY)
 	}
-	p.SetState(87)
+	p.SetState(105)
 	p.GetErrorHandler().Sync(p)
-	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 7, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 10, p.GetParserRuleContext())
 
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
 			{
-				p.SetState(84)
+				p.SetState(102)
 				p.BodyScope()
 			}
 
 		}
-		p.SetState(89)
+		p.SetState(107)
 		p.GetErrorHandler().Sync(p)
-		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 7, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 10, p.GetParserRuleContext())
 	}
-	p.SetState(91)
+	p.SetState(109)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<IronLangParserPLUS)|(1<<IronLangParserMINUS)|(1<<IronLangParserL_PAREN)|(1<<IronLangParserINT_NUMBER)|(1<<IronLangParserREAL_NUMBER)|(1<<IronLangParserRETURN)|(1<<IronLangParserIDENTIFIER))) != 0 {
 		{
-			p.SetState(90)
+			p.SetState(108)
 			p.Return()
 		}
 
 	}
 	{
-		p.SetState(93)
+		p.SetState(111)
 		p.Match(IronLangParserR_CURLY)
 	}
 
@@ -1339,7 +1583,7 @@ func (p *IronLangParser) FuncCall() (localctx IFuncCallContext) {
 	_ = this
 
 	localctx = NewFuncCallContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 10, IronLangParserRULE_funcCall)
+	p.EnterRule(localctx, 12, IronLangParserRULE_funcCall)
 	var _la int
 
 	defer func() {
@@ -1360,44 +1604,44 @@ func (p *IronLangParser) FuncCall() (localctx IFuncCallContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(95)
+		p.SetState(113)
 		p.Match(IronLangParserIDENTIFIER)
 	}
 	{
-		p.SetState(96)
+		p.SetState(114)
 		p.Match(IronLangParserL_PAREN)
 	}
-	p.SetState(105)
+	p.SetState(123)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<IronLangParserPLUS)|(1<<IronLangParserMINUS)|(1<<IronLangParserL_PAREN)|(1<<IronLangParserINT_NUMBER)|(1<<IronLangParserREAL_NUMBER)|(1<<IronLangParserIDENTIFIER))) != 0 {
 		{
-			p.SetState(97)
+			p.SetState(115)
 			p.FuncCallArg()
 		}
-		p.SetState(102)
+		p.SetState(120)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
 		for _la == IronLangParserCOMMA {
 			{
-				p.SetState(98)
+				p.SetState(116)
 				p.Match(IronLangParserCOMMA)
 			}
 			{
-				p.SetState(99)
+				p.SetState(117)
 				p.FuncCallArg()
 			}
 
-			p.SetState(104)
+			p.SetState(122)
 			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
 		}
 
 	}
 	{
-		p.SetState(107)
+		p.SetState(125)
 		p.Match(IronLangParserR_PAREN)
 	}
 
@@ -1509,7 +1753,7 @@ func (p *IronLangParser) FuncCallArg() (localctx IFuncCallArgContext) {
 	_ = this
 
 	localctx = NewFuncCallArgContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 12, IronLangParserRULE_funcCallArg)
+	p.EnterRule(localctx, 14, IronLangParserRULE_funcCallArg)
 
 	defer func() {
 		p.ExitRule()
@@ -1527,20 +1771,20 @@ func (p *IronLangParser) FuncCallArg() (localctx IFuncCallArgContext) {
 		}
 	}()
 
-	p.SetState(111)
+	p.SetState(129)
 	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 11, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 14, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(109)
+			p.SetState(127)
 			p.mathExpression(0)
 		}
 
 	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(110)
+			p.SetState(128)
 			p.FuncCall()
 		}
 
@@ -1731,7 +1975,7 @@ func (p *IronLangParser) AnonimousFunc() (localctx IAnonimousFuncContext) {
 	_ = this
 
 	localctx = NewAnonimousFuncContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 14, IronLangParserRULE_anonimousFunc)
+	p.EnterRule(localctx, 16, IronLangParserRULE_anonimousFunc)
 	var _la int
 
 	defer func() {
@@ -1752,73 +1996,73 @@ func (p *IronLangParser) AnonimousFunc() (localctx IAnonimousFuncContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(113)
+		p.SetState(131)
 		p.Match(IronLangParserL_PAREN)
 	}
-	p.SetState(122)
+	p.SetState(140)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == IronLangParserMUT || _la == IronLangParserIDENTIFIER {
 		{
-			p.SetState(114)
+			p.SetState(132)
 			p.FunctionArgs()
 		}
-		p.SetState(119)
+		p.SetState(137)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
 		for _la == IronLangParserCOMMA {
 			{
-				p.SetState(115)
+				p.SetState(133)
 				p.Match(IronLangParserCOMMA)
 			}
 			{
-				p.SetState(116)
+				p.SetState(134)
 				p.FunctionArgs()
 			}
 
-			p.SetState(121)
+			p.SetState(139)
 			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
 		}
 
 	}
 	{
-		p.SetState(124)
+		p.SetState(142)
 		p.Match(IronLangParserR_PAREN)
 	}
-	p.SetState(126)
+	p.SetState(144)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == IronLangParserTYPE_INT || _la == IronLangParserTYPE_FLOAT {
 		{
-			p.SetState(125)
+			p.SetState(143)
 			p.DataTypes()
 		}
 
 	}
 	{
-		p.SetState(128)
+		p.SetState(146)
 		p.Match(IronLangParserARROW)
 	}
-	p.SetState(130)
+	p.SetState(148)
 	p.GetErrorHandler().Sync(p)
 
-	if p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 15, p.GetParserRuleContext()) == 1 {
+	if p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 18, p.GetParserRuleContext()) == 1 {
 		{
-			p.SetState(129)
+			p.SetState(147)
 			p.BodyScope()
 		}
 
 	}
-	p.SetState(133)
+	p.SetState(151)
 	p.GetErrorHandler().Sync(p)
 
-	if p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 16, p.GetParserRuleContext()) == 1 {
+	if p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 19, p.GetParserRuleContext()) == 1 {
 		{
-			p.SetState(132)
+			p.SetState(150)
 			p.Return()
 		}
 
@@ -1996,7 +2240,7 @@ func (p *IronLangParser) BodyScope() (localctx IBodyScopeContext) {
 	_ = this
 
 	localctx = NewBodyScopeContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 16, IronLangParserRULE_bodyScope)
+	p.EnterRule(localctx, 18, IronLangParserRULE_bodyScope)
 
 	defer func() {
 		p.ExitRule()
@@ -2014,48 +2258,48 @@ func (p *IronLangParser) BodyScope() (localctx IBodyScopeContext) {
 		}
 	}()
 
-	p.SetState(141)
+	p.SetState(159)
 	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 17, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 20, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(135)
+			p.SetState(153)
 			p.Variable()
 		}
 
 	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(136)
+			p.SetState(154)
 			p.Assignment()
 		}
 
 	case 3:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(137)
+			p.SetState(155)
 			p.Function()
 		}
 
 	case 4:
 		p.EnterOuterAlt(localctx, 4)
 		{
-			p.SetState(138)
+			p.SetState(156)
 			p.FuncCall()
 		}
 
 	case 5:
 		p.EnterOuterAlt(localctx, 5)
 		{
-			p.SetState(139)
+			p.SetState(157)
 			p.Scope()
 		}
 
 	case 6:
 		p.EnterOuterAlt(localctx, 6)
 		{
-			p.SetState(140)
+			p.SetState(158)
 			p.Println()
 		}
 
@@ -2169,7 +2413,7 @@ func (p *IronLangParser) Println() (localctx IPrintlnContext) {
 	_ = this
 
 	localctx = NewPrintlnContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 18, IronLangParserRULE_println)
+	p.EnterRule(localctx, 20, IronLangParserRULE_println)
 
 	defer func() {
 		p.ExitRule()
@@ -2189,26 +2433,26 @@ func (p *IronLangParser) Println() (localctx IPrintlnContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(143)
+		p.SetState(161)
 		p.Match(IronLangParserPRINT_LN)
 	}
 	{
-		p.SetState(144)
+		p.SetState(162)
 		p.Match(IronLangParserL_PAREN)
 	}
-	p.SetState(147)
+	p.SetState(165)
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
 	case IronLangParserLET, IronLangParserMUT:
 		{
-			p.SetState(145)
+			p.SetState(163)
 			p.Variable()
 		}
 
 	case IronLangParserIDENTIFIER:
 		{
-			p.SetState(146)
+			p.SetState(164)
 			p.Match(IronLangParserIDENTIFIER)
 		}
 
@@ -2216,7 +2460,7 @@ func (p *IronLangParser) Println() (localctx IPrintlnContext) {
 		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
 	}
 	{
-		p.SetState(149)
+		p.SetState(167)
 		p.Match(IronLangParserR_PAREN)
 	}
 
@@ -2324,7 +2568,7 @@ func (p *IronLangParser) Variable() (localctx IVariableContext) {
 	_ = this
 
 	localctx = NewVariableContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 20, IronLangParserRULE_variable)
+	p.EnterRule(localctx, 22, IronLangParserRULE_variable)
 	var _la int
 
 	defer func() {
@@ -2344,32 +2588,32 @@ func (p *IronLangParser) Variable() (localctx IVariableContext) {
 	}()
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(152)
+	p.SetState(170)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == IronLangParserMUT {
 		{
-			p.SetState(151)
+			p.SetState(169)
 			p.Match(IronLangParserMUT)
 		}
 
 	}
 	{
-		p.SetState(154)
+		p.SetState(172)
 		p.Match(IronLangParserLET)
 	}
 	{
-		p.SetState(155)
+		p.SetState(173)
 		p.Match(IronLangParserIDENTIFIER)
 	}
-	p.SetState(157)
+	p.SetState(175)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == IronLangParserTYPE_INT || _la == IronLangParserTYPE_FLOAT {
 		{
-			p.SetState(156)
+			p.SetState(174)
 			p.DataTypes()
 		}
 
@@ -2500,7 +2744,7 @@ func (p *IronLangParser) FunctionArgs() (localctx IFunctionArgsContext) {
 	_ = this
 
 	localctx = NewFunctionArgsContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 22, IronLangParserRULE_functionArgs)
+	p.EnterRule(localctx, 24, IronLangParserRULE_functionArgs)
 
 	defer func() {
 		p.ExitRule()
@@ -2522,28 +2766,28 @@ func (p *IronLangParser) FunctionArgs() (localctx IFunctionArgsContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(159)
+		p.SetState(177)
 		p.FuncArg()
 	}
-	p.SetState(164)
+	p.SetState(182)
 	p.GetErrorHandler().Sync(p)
-	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 21, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 24, p.GetParserRuleContext())
 
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
 			{
-				p.SetState(160)
+				p.SetState(178)
 				p.Match(IronLangParserCOMMA)
 			}
 			{
-				p.SetState(161)
+				p.SetState(179)
 				p.FuncArg()
 			}
 
 		}
-		p.SetState(166)
+		p.SetState(184)
 		p.GetErrorHandler().Sync(p)
-		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 21, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 24, p.GetParserRuleContext())
 	}
 
 	return localctx
@@ -2611,6 +2855,22 @@ func (s *FuncArgContext) MUT() antlr.TerminalNode {
 	return s.GetToken(IronLangParserMUT, 0)
 }
 
+func (s *FuncArgContext) FuncType() IFuncTypeContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IFuncTypeContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IFuncTypeContext)
+}
+
 func (s *FuncArgContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
@@ -2646,7 +2906,7 @@ func (p *IronLangParser) FuncArg() (localctx IFuncArgContext) {
 	_ = this
 
 	localctx = NewFuncArgContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 24, IronLangParserRULE_funcArg)
+	p.EnterRule(localctx, 26, IronLangParserRULE_funcArg)
 	var _la int
 
 	defer func() {
@@ -2665,25 +2925,38 @@ func (p *IronLangParser) FuncArg() (localctx IFuncArgContext) {
 		}
 	}()
 
-	p.EnterOuterAlt(localctx, 1)
-	p.SetState(168)
+	p.SetState(191)
 	p.GetErrorHandler().Sync(p)
-	_la = p.GetTokenStream().LA(1)
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 26, p.GetParserRuleContext()) {
+	case 1:
+		p.EnterOuterAlt(localctx, 1)
+		p.SetState(186)
+		p.GetErrorHandler().Sync(p)
+		_la = p.GetTokenStream().LA(1)
 
-	if _la == IronLangParserMUT {
+		if _la == IronLangParserMUT {
+			{
+				p.SetState(185)
+				p.Match(IronLangParserMUT)
+			}
+
+		}
 		{
-			p.SetState(167)
-			p.Match(IronLangParserMUT)
+			p.SetState(188)
+			p.Match(IronLangParserIDENTIFIER)
+		}
+		{
+			p.SetState(189)
+			p.DataTypes()
 		}
 
-	}
-	{
-		p.SetState(170)
-		p.Match(IronLangParserIDENTIFIER)
-	}
-	{
-		p.SetState(171)
-		p.DataTypes()
+	case 2:
+		p.EnterOuterAlt(localctx, 2)
+		{
+			p.SetState(190)
+			p.FuncType()
+		}
+
 	}
 
 	return localctx
@@ -2770,7 +3043,7 @@ func (p *IronLangParser) DataTypes() (localctx IDataTypesContext) {
 	_ = this
 
 	localctx = NewDataTypesContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 26, IronLangParserRULE_dataTypes)
+	p.EnterRule(localctx, 28, IronLangParserRULE_dataTypes)
 	var _la int
 
 	defer func() {
@@ -2791,7 +3064,7 @@ func (p *IronLangParser) DataTypes() (localctx IDataTypesContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(173)
+		p.SetState(193)
 		_la = p.GetTokenStream().LA(1)
 
 		if !(_la == IronLangParserTYPE_INT || _la == IronLangParserTYPE_FLOAT) {
@@ -2842,10 +3115,6 @@ func NewAssignmentContext(parser antlr.Parser, parent antlr.ParserRuleContext, i
 }
 
 func (s *AssignmentContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *AssignmentContext) IDENTIFIER() antlr.TerminalNode {
-	return s.GetToken(IronLangParserIDENTIFIER, 0)
-}
 
 func (s *AssignmentContext) Variable() IVariableContext {
 	var t antlr.RuleContext
@@ -2899,6 +3168,10 @@ func (s *AssignmentContext) AnonimousFunc() IAnonimousFuncContext {
 	return t.(IAnonimousFuncContext)
 }
 
+func (s *AssignmentContext) IDENTIFIER() antlr.TerminalNode {
+	return s.GetToken(IronLangParserIDENTIFIER, 0)
+}
+
 func (s *AssignmentContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
@@ -2934,7 +3207,7 @@ func (p *IronLangParser) Assignment() (localctx IAssignmentContext) {
 	_ = this
 
 	localctx = NewAssignmentContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 28, IronLangParserRULE_assignment)
+	p.EnterRule(localctx, 30, IronLangParserRULE_assignment)
 
 	defer func() {
 		p.ExitRule()
@@ -2952,43 +3225,69 @@ func (p *IronLangParser) Assignment() (localctx IAssignmentContext) {
 		}
 	}()
 
-	p.SetState(184)
+	p.SetState(211)
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
-	case IronLangParserIDENTIFIER:
+	case IronLangParserLET, IronLangParserMUT:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(175)
-			p.Match(IronLangParserIDENTIFIER)
-		}
-
-	case IronLangParserLET, IronLangParserMUT:
-		p.EnterOuterAlt(localctx, 2)
-		{
-			p.SetState(176)
+			p.SetState(195)
 			p.Variable()
 		}
 		{
-			p.SetState(177)
+			p.SetState(196)
 			p.Match(IronLangParserEQ)
 		}
-		p.SetState(182)
+		p.SetState(201)
 		p.GetErrorHandler().Sync(p)
-		switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 24, p.GetParserRuleContext()) {
+		switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 28, p.GetParserRuleContext()) {
 		case 1:
 			{
-				p.SetState(178)
+				p.SetState(197)
 				p.mathExpression(0)
 			}
 
 		case 2:
-			p.SetState(180)
+			p.SetState(199)
 			p.GetErrorHandler().Sync(p)
 
-			if p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 23, p.GetParserRuleContext()) == 1 {
+			if p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 27, p.GetParserRuleContext()) == 1 {
 				{
-					p.SetState(179)
+					p.SetState(198)
+					p.AnonimousFunc()
+				}
+
+			}
+
+		}
+
+	case IronLangParserIDENTIFIER:
+		p.EnterOuterAlt(localctx, 2)
+		{
+			p.SetState(203)
+			p.Match(IronLangParserIDENTIFIER)
+		}
+		{
+			p.SetState(204)
+			p.Match(IronLangParserEQ)
+		}
+		p.SetState(209)
+		p.GetErrorHandler().Sync(p)
+		switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 30, p.GetParserRuleContext()) {
+		case 1:
+			{
+				p.SetState(205)
+				p.mathExpression(0)
+			}
+
+		case 2:
+			p.SetState(207)
+			p.GetErrorHandler().Sync(p)
+
+			if p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 29, p.GetParserRuleContext()) == 1 {
+				{
+					p.SetState(206)
 					p.AnonimousFunc()
 				}
 
@@ -3114,6 +3413,22 @@ func (s *MathExpressionContext) MINUS() antlr.TerminalNode {
 	return s.GetToken(IronLangParserMINUS, 0)
 }
 
+func (s *MathExpressionContext) FuncCall() IFuncCallContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IFuncCallContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IFuncCallContext)
+}
+
 func (s *MathExpressionContext) MULT() antlr.TerminalNode {
 	return s.GetToken(IronLangParserMULT, 0)
 }
@@ -3165,8 +3480,8 @@ func (p *IronLangParser) mathExpression(_p int) (localctx IMathExpressionContext
 	localctx = NewMathExpressionContext(p, p.GetParserRuleContext(), _parentState)
 	var _prevctx IMathExpressionContext = localctx
 	var _ antlr.ParserRuleContext = _prevctx // TODO: To prevent unused variable warning.
-	_startState := 30
-	p.EnterRecursionRule(localctx, 30, IronLangParserRULE_mathExpression, _p)
+	_startState := 32
+	p.EnterRecursionRule(localctx, 32, IronLangParserRULE_mathExpression, _p)
 	var _la int
 
 	defer func() {
@@ -3188,32 +3503,31 @@ func (p *IronLangParser) mathExpression(_p int) (localctx IMathExpressionContext
 	var _alt int
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(195)
+	p.SetState(226)
 	p.GetErrorHandler().Sync(p)
-
-	switch p.GetTokenStream().LA(1) {
-	case IronLangParserL_PAREN:
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 34, p.GetParserRuleContext()) {
+	case 1:
 		{
-			p.SetState(187)
+			p.SetState(214)
 			p.Match(IronLangParserL_PAREN)
 		}
 		{
-			p.SetState(188)
+			p.SetState(215)
 			p.mathExpression(0)
 		}
 		{
-			p.SetState(189)
+			p.SetState(216)
 			p.Match(IronLangParserR_PAREN)
 		}
 
-	case IronLangParserPLUS, IronLangParserMINUS, IronLangParserINT_NUMBER, IronLangParserREAL_NUMBER, IronLangParserIDENTIFIER:
-		p.SetState(192)
+	case 2:
+		p.SetState(219)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
 		if _la == IronLangParserPLUS || _la == IronLangParserMINUS {
 			{
-				p.SetState(191)
+				p.SetState(218)
 				_la = p.GetTokenStream().LA(1)
 
 				if !(_la == IronLangParserPLUS || _la == IronLangParserMINUS) {
@@ -3226,17 +3540,39 @@ func (p *IronLangParser) mathExpression(_p int) (localctx IMathExpressionContext
 
 		}
 		{
-			p.SetState(194)
+			p.SetState(221)
 			p.Atom()
 		}
 
-	default:
-		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
+	case 3:
+		p.SetState(223)
+		p.GetErrorHandler().Sync(p)
+		_la = p.GetTokenStream().LA(1)
+
+		if _la == IronLangParserPLUS || _la == IronLangParserMINUS {
+			{
+				p.SetState(222)
+				_la = p.GetTokenStream().LA(1)
+
+				if !(_la == IronLangParserPLUS || _la == IronLangParserMINUS) {
+					p.GetErrorHandler().RecoverInline(p)
+				} else {
+					p.GetErrorHandler().ReportMatch(p)
+					p.Consume()
+				}
+			}
+
+		}
+		{
+			p.SetState(225)
+			p.FuncCall()
+		}
+
 	}
 	p.GetParserRuleContext().SetStop(p.GetTokenStream().LT(-1))
-	p.SetState(205)
+	p.SetState(236)
 	p.GetErrorHandler().Sync(p)
-	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 29, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 36, p.GetParserRuleContext())
 
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
@@ -3244,19 +3580,19 @@ func (p *IronLangParser) mathExpression(_p int) (localctx IMathExpressionContext
 				p.TriggerExitRuleEvent()
 			}
 			_prevctx = localctx
-			p.SetState(203)
+			p.SetState(234)
 			p.GetErrorHandler().Sync(p)
-			switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 28, p.GetParserRuleContext()) {
+			switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 35, p.GetParserRuleContext()) {
 			case 1:
 				localctx = NewMathExpressionContext(p, _parentctx, _parentState)
 				p.PushNewRecursionContext(localctx, _startState, IronLangParserRULE_mathExpression)
-				p.SetState(197)
+				p.SetState(228)
 
-				if !(p.Precpred(p.GetParserRuleContext(), 4)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 4)", ""))
+				if !(p.Precpred(p.GetParserRuleContext(), 5)) {
+					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 5)", ""))
 				}
 				{
-					p.SetState(198)
+					p.SetState(229)
 					_la = p.GetTokenStream().LA(1)
 
 					if !(_la == IronLangParserMULT || _la == IronLangParserDIV) {
@@ -3267,20 +3603,20 @@ func (p *IronLangParser) mathExpression(_p int) (localctx IMathExpressionContext
 					}
 				}
 				{
-					p.SetState(199)
-					p.mathExpression(5)
+					p.SetState(230)
+					p.mathExpression(6)
 				}
 
 			case 2:
 				localctx = NewMathExpressionContext(p, _parentctx, _parentState)
 				p.PushNewRecursionContext(localctx, _startState, IronLangParserRULE_mathExpression)
-				p.SetState(200)
+				p.SetState(231)
 
-				if !(p.Precpred(p.GetParserRuleContext(), 3)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 3)", ""))
+				if !(p.Precpred(p.GetParserRuleContext(), 4)) {
+					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 4)", ""))
 				}
 				{
-					p.SetState(201)
+					p.SetState(232)
 					_la = p.GetTokenStream().LA(1)
 
 					if !(_la == IronLangParserPLUS || _la == IronLangParserMINUS) {
@@ -3291,16 +3627,16 @@ func (p *IronLangParser) mathExpression(_p int) (localctx IMathExpressionContext
 					}
 				}
 				{
-					p.SetState(202)
-					p.mathExpression(4)
+					p.SetState(233)
+					p.mathExpression(5)
 				}
 
 			}
 
 		}
-		p.SetState(207)
+		p.SetState(238)
 		p.GetErrorHandler().Sync(p)
-		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 29, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 36, p.GetParserRuleContext())
 	}
 
 	return localctx
@@ -3391,7 +3727,7 @@ func (p *IronLangParser) Atom() (localctx IAtomContext) {
 	_ = this
 
 	localctx = NewAtomContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 32, IronLangParserRULE_atom)
+	p.EnterRule(localctx, 34, IronLangParserRULE_atom)
 	var _la int
 
 	defer func() {
@@ -3412,7 +3748,7 @@ func (p *IronLangParser) Atom() (localctx IAtomContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(208)
+		p.SetState(239)
 		_la = p.GetTokenStream().LA(1)
 
 		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<IronLangParserINT_NUMBER)|(1<<IronLangParserREAL_NUMBER)|(1<<IronLangParserIDENTIFIER))) != 0) {
@@ -3428,7 +3764,7 @@ func (p *IronLangParser) Atom() (localctx IAtomContext) {
 
 func (p *IronLangParser) Sempred(localctx antlr.RuleContext, ruleIndex, predIndex int) bool {
 	switch ruleIndex {
-	case 15:
+	case 16:
 		var t *MathExpressionContext = nil
 		if localctx != nil {
 			t = localctx.(*MathExpressionContext)
@@ -3446,10 +3782,10 @@ func (p *IronLangParser) MathExpression_Sempred(localctx antlr.RuleContext, pred
 
 	switch predIndex {
 	case 0:
-		return p.Precpred(p.GetParserRuleContext(), 4)
+		return p.Precpred(p.GetParserRuleContext(), 5)
 
 	case 1:
-		return p.Precpred(p.GetParserRuleContext(), 3)
+		return p.Precpred(p.GetParserRuleContext(), 4)
 
 	default:
 		panic("No predicate with index: " + fmt.Sprint(predIndex))

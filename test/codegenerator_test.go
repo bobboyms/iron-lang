@@ -1,6 +1,9 @@
-package main
+package test
 
 import (
+	"bufio"
+	"bytes"
+	"fmt"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"iron-lang/compiler"
 	"iron-lang/compiler/codegenerator"
@@ -9,13 +12,30 @@ import (
 	"iron-lang/compiler/scopes"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
+	"testing"
 )
 
-func main() {
+func NewFile(strBuilder *strings.Builder) {
+	f, err := os.Create("source.tmp")
 
-	//Lexical analysis
-	is := antlr.NewInputStream("fn main() {let x = teste(2,3,5) let xx = 2+2+xx()}")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer f.Close()
+
+	_, err = f.WriteString(strBuilder.String())
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+}
+
+func Compiler(code string) {
+	is := antlr.NewInputStream(code)
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}
 	lexer.RemoveErrorListeners()
@@ -33,7 +53,6 @@ func main() {
 	errors.HasParserError(customParserErrorListener.Errors)
 
 	//Semantic analysis
-
 	scopes := scopes.NewScopesManager()
 
 	customSemanticErrorListener := &errors.CustomErrorListener{}
@@ -48,8 +67,27 @@ func main() {
 	NewFile(generator.GetBuilder())
 }
 
-func NewFile(strBuilder *strings.Builder) {
-	f, err := os.Create("source.tmp")
+func RunMake() {
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(path)
+
+	e := exec.Command("make")
+	e.Dir = path
+	var out bytes.Buffer
+	e.Stdout = &out
+	err = e.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Output: %q\n", out.String())
+}
+
+func TestCodeGenerator(t *testing.T) {
+
+	f, err := os.Open("anonymous.ir")
 
 	if err != nil {
 		log.Fatal(err)
@@ -57,10 +95,18 @@ func NewFile(strBuilder *strings.Builder) {
 
 	defer f.Close()
 
-	_, err = f.WriteString(strBuilder.String())
+	scanner := bufio.NewScanner(f)
 
-	if err != nil {
+	builder := strings.Builder{}
+	for scanner.Scan() {
+		builder.WriteString(scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
+
+	Compiler(builder.String())
+	RunMake()
 
 }
