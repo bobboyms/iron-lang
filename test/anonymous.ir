@@ -1,4 +1,35 @@
 fn main() {
-    let test1 = (x int, y int) int -> x + y
-    test1(2,3)
+    let func1 = () int -> 2 + 2
+    let func2 = (x int, y float) int -> (x + y) * 3
+    let func3 = () int -> {
+            let x = 10
+            let inFunc = (x int) -> {
+                let nn = x
+            }
+            inFunc(x)
+
+            let inFunc2 = () int -> {
+                2
+            }
+
+            return inFunc2()
+    }
+
+    let func4 = (pFunc(x int, y float)int, n int, p float) int -> return pFunc(n,p)
+
+    let result = func4((x int, y float) int -> {
+        return x / y
+    }, 9,3)
+
+    fn test1() int {
+        fn test2() int {
+            fn test3() int {
+                3
+            }
+            return test3()
+        }
+        return test2()
+    }
+    test1()
+
 }

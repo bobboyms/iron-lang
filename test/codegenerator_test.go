@@ -85,7 +85,7 @@ func RunMake() {
 	fmt.Printf("Output: %q\n", out.String())
 }
 
-func TestCodeGenerator(t *testing.T) {
+func TestCodeGeneratorFunctions(t *testing.T) {
 
 	f, err := os.Open("anonymous.ir")
 

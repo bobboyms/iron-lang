@@ -133,12 +133,12 @@ funcCall
     : IDENTIFIER L_PAREN (funcCallArg (COMMA funcCallArg)*)? R_PAREN
 ;
 
-funcCallArg: mathExpression | funcCall;
+funcCallArg: mathExpression | funcCall | anonimousFunc;
 
 //() int -> {}
 anonimousFunc
-    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)?
-      ARROW (bodyScope)? (return)?
+    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? ARROW L_CURLY (bodyScope)? (return)? R_CURLY
+    | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? ARROW (bodyScope)? (return)?
 ;
 
 bodyScope: variable | assignment | function | funcCall | scope | println ;

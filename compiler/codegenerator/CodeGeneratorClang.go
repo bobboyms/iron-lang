@@ -57,6 +57,8 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitFunctionArgs(val)
 	case *ironlang.FuncArgContext:
 		l.VisitFuncArg(val)
+	case *ironlang.FuncTypeContext:
+		l.VisitFuncType(val)
 
 	default:
 		panic("Unknown context")
@@ -90,11 +92,38 @@ func (l *ClangPlus) VisitFunctionArgs(ctx *ironlang.FunctionArgsContext) {
 	}
 }
 
+func (l *ClangPlus) VisitFuncType(ctx *ironlang.FuncTypeContext) {
+	//int (*func)(int x)
+	if ctx.DataTypes() != nil {
+		l.Visit(ctx.DataTypes())
+	} else {
+		l.StrBuilder.WriteString("void ")
+	}
+	l.StrBuilder.WriteString("(*")
+	l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
+	l.StrBuilder.WriteString(")")
+	l.StrBuilder.WriteString("(")
+	for i, functionArgs := range ctx.AllFunctionArgs() {
+		l.Visit(functionArgs)
+		if ctx.COMMA(i) != nil {
+			l.StrBuilder.WriteString(",")
+		}
+	}
+	l.StrBuilder.WriteString(")")
+}
+
 func (l *ClangPlus) VisitFuncArg(ctx *ironlang.FuncArgContext) {
 	if ctx.DataTypes() != nil {
 		l.Visit(ctx.DataTypes())
 	}
-	l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
+
+	if ctx.FuncType() != nil {
+		l.Visit(ctx.FuncType())
+	}
+
+	if ctx.IDENTIFIER() != nil {
+		l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
+	}
 }
 
 func (l *ClangPlus) VisitFuncMain(ctx *ironlang.FuncMainContext) {
@@ -136,26 +165,6 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 		l.Visit(ctx.Scope())
 	}
 
-	//for _, variable := range ctx.AllVariable() {
-	//	l.Visit(variable)
-	//}
-	//
-	//for _, assignment := range ctx.AllAssignment() {
-	//	l.Visit(assignment)
-	//}
-	//
-	//builder := NewStringBuilder()
-	//for _, function := range ctx.AllFunction() {
-	//	c := NewClang(l.ScopeLog)
-	//	c.Visit(function)
-	//	builder.WriteString(c.GetBuilder().String())
-	//}
-	//
-
-	//
-	//for _, funcCall := range ctx.AllFuncCall() {
-	//	l.Visit(funcCall)
-	//}
 }
 
 func (l *ClangPlus) VisitScope(ctx *ironlang.ScopeContext) {
@@ -258,6 +267,10 @@ func (l *ClangPlus) VisitAnonymousFunc(ctx *ironlang.AnonimousFuncContext) {
 func (l *ClangPlus) VisitFuncCallArg(ctx *ironlang.FuncCallArgContext) {
 	if ctx.MathExpression() != nil {
 		l.Visit(ctx.MathExpression())
+	}
+
+	if ctx.AnonimousFunc() != nil {
+		l.Visit(ctx.AnonimousFunc())
 	}
 
 	if ctx.FuncCall() != nil {
