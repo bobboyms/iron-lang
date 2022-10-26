@@ -1,0 +1,8 @@
+fn main() {
+    let arr = int[1,2,3,4]
+    arr.forEach((val int) -> {})
+
+    float[1,2,3,4].forEach((v float) -> {
+        let x = 2 * v
+    })
+}

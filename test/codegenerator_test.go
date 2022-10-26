@@ -87,7 +87,33 @@ func RunMake() {
 
 func TestCodeGeneratorFunctions(t *testing.T) {
 
-	f, err := os.Open("anonymous.ir")
+	f, err := os.Open("functions.ir")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+
+	builder := strings.Builder{}
+	for scanner.Scan() {
+		builder.WriteString(scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	Compiler(builder.String())
+	RunMake()
+
+}
+
+func TestCodeGeneratorFunctional(t *testing.T) {
+
+	f, err := os.Open("functional.ir")
 
 	if err != nil {
 		log.Fatal(err)

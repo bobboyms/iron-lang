@@ -33,6 +33,13 @@ R_PAREN
 L_CURLY
     : '{'
 ;
+L_BRACKET
+    : '['
+;
+
+R_BRACKET
+    : ']'
+;
 R_CURLY
     : '}'
 ;
@@ -66,6 +73,8 @@ REAL_NUMBER
     | [0-9]+ DOT [0-9]+
 ;
 
+
+
 //Keywords
 FN:
     'fn'
@@ -81,6 +90,10 @@ LET:
 
 MUT:
     'mut'
+;
+
+FOR_EACH:
+    'forEach'
 ;
 
 RETURN:
@@ -110,7 +123,7 @@ program
 
 
 funcMain
-    : FN 'main'L_PAREN (functionArgs)* R_PAREN scope
+    : FN 'main'L_PAREN R_PAREN scope
 ;
 
 function
@@ -141,7 +154,7 @@ anonimousFunc
     | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? ARROW (bodyScope)? (return)?
 ;
 
-bodyScope: variable | assignment | function | funcCall | scope | println ;
+bodyScope: variable | assignment | function | funcCall | scope | println | forEach ;
 
 println: PRINT_LN L_PAREN (variable | IDENTIFIER) R_PAREN;
 
@@ -156,7 +169,20 @@ dataTypes:  TYPE_INT | TYPE_FLOAT;
 assignment
     : variable EQ ( mathExpression | (anonimousFunc)?)
     | IDENTIFIER EQ ( mathExpression | (anonimousFunc)?)
+    | variable EQ array
+    | IDENTIFIER EQ array
 ;
+
+array
+    : dataTypes L_BRACKET ((INT_NUMBER | REAL_NUMBER) (COMMA (INT_NUMBER | REAL_NUMBER))*)* R_BRACKET
+;
+
+forEach
+    : IDENTIFIER DOT FOR_EACH L_PAREN (anonimousFunc) R_PAREN
+    | array DOT FOR_EACH L_PAREN (anonimousFunc | IDENTIFIER) R_PAREN
+;
+
+
 
 mathExpression
    :  mathExpression  (MULT | DIV)  mathExpression

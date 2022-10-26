@@ -71,6 +71,14 @@ func (v *BaseIronLangVisitor) VisitAssignment(ctx *AssignmentContext) interface{
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseIronLangVisitor) VisitArray(ctx *ArrayContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseIronLangVisitor) VisitForEach(ctx *ForEachContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseIronLangVisitor) VisitMathExpression(ctx *MathExpressionContext) interface{} {
 	return v.VisitChildren(ctx)
 }

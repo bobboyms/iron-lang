@@ -55,6 +55,12 @@ type IronLangListener interface {
 	// EnterAssignment is called when entering the assignment production.
 	EnterAssignment(c *AssignmentContext)
 
+	// EnterArray is called when entering the array production.
+	EnterArray(c *ArrayContext)
+
+	// EnterForEach is called when entering the forEach production.
+	EnterForEach(c *ForEachContext)
+
 	// EnterMathExpression is called when entering the mathExpression production.
 	EnterMathExpression(c *MathExpressionContext)
 
@@ -108,6 +114,12 @@ type IronLangListener interface {
 
 	// ExitAssignment is called when exiting the assignment production.
 	ExitAssignment(c *AssignmentContext)
+
+	// ExitArray is called when exiting the array production.
+	ExitArray(c *ArrayContext)
+
+	// ExitForEach is called when exiting the forEach production.
+	ExitForEach(c *ForEachContext)
 
 	// ExitMathExpression is called when exiting the mathExpression production.
 	ExitMathExpression(c *MathExpressionContext)

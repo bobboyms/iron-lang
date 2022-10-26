@@ -116,6 +116,18 @@ func (s *BaseIronLangListener) EnterAssignment(ctx *AssignmentContext) {}
 // ExitAssignment is called when production assignment is exited.
 func (s *BaseIronLangListener) ExitAssignment(ctx *AssignmentContext) {}
 
+// EnterArray is called when production array is entered.
+func (s *BaseIronLangListener) EnterArray(ctx *ArrayContext) {}
+
+// ExitArray is called when production array is exited.
+func (s *BaseIronLangListener) ExitArray(ctx *ArrayContext) {}
+
+// EnterForEach is called when production forEach is entered.
+func (s *BaseIronLangListener) EnterForEach(ctx *ForEachContext) {}
+
+// ExitForEach is called when production forEach is exited.
+func (s *BaseIronLangListener) ExitForEach(ctx *ForEachContext) {}
+
 // EnterMathExpression is called when production mathExpression is entered.
 func (s *BaseIronLangListener) EnterMathExpression(ctx *MathExpressionContext) {}
 

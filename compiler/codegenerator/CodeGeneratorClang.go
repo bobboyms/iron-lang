@@ -1,6 +1,7 @@
 package codegenerator
 
 import (
+	"fmt"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"iron-lang/compiler/ironlang"
 	"iron-lang/compiler/scopes"
@@ -12,6 +13,7 @@ type ClangPlus struct {
 	StrBuilder       *StringBuilder
 	StrImportBuilder *StringBuilder
 	StrFuncBuilder   *StringBuilder
+	TempArrCount     int
 	ScopeLog         *scopes.ScopeLog
 }
 
@@ -19,8 +21,18 @@ func NewClang(scopeLog *scopes.ScopeLog) *ClangPlus {
 	return &ClangPlus{
 		StrBuilder:       NewStringBuilder(),
 		StrImportBuilder: NewStringBuilder(),
+		StrFuncBuilder:   NewStringBuilder(),
+		TempArrCount:     -1,
 		ScopeLog:         scopeLog,
 	}
+}
+
+func (l *ClangPlus) InitForEachFunction() {
+	l.StrFuncBuilder.WriteString("\n")
+	l.StrFuncBuilder.WriteString("template <typename TTX>\n")
+	l.StrFuncBuilder.WriteString("void arrForEach(void (*func)(TTX), TTX val) {\n")
+	l.StrFuncBuilder.WriteString("func(val);\n")
+	l.StrFuncBuilder.WriteString("}\n")
 }
 
 func (l *ClangPlus) Visit(tree antlr.ParseTree) {
@@ -59,6 +71,10 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitFuncArg(val)
 	case *ironlang.FuncTypeContext:
 		l.VisitFuncType(val)
+	case *ironlang.ArrayContext:
+		l.VisitArray(val)
+	case *ironlang.ForEachContext:
+		l.VisitForEach(val)
 
 	default:
 		panic("Unknown context")
@@ -77,9 +93,21 @@ func (l *ClangPlus) GetBuilder() *strings.Builder {
 
 func (l *ClangPlus) VisitProgram(ctx *ironlang.ProgramContext) {
 	l.StrImportBuilder.WriteString("#include <iostream>\n")
+	l.InitForEachFunction()
 	l.Visit(ctx.FuncMain())
 	l.StrBuilder.WriteString("\n")
 
+}
+
+func (l *ClangPlus) VisitArray(ctx *ironlang.ArrayContext) {
+	l.StrBuilder.WriteString("{")
+	for i, number := range ctx.AllINT_NUMBER() {
+		l.StrBuilder.WriteString(number.GetText())
+		if ctx.COMMA(i) != nil {
+			l.StrBuilder.WriteString(",")
+		}
+	}
+	l.StrBuilder.WriteString("}")
 }
 
 func (l *ClangPlus) VisitFunctionArgs(ctx *ironlang.FunctionArgsContext) {
@@ -161,6 +189,10 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 		l.Visit(ctx.FuncCall())
 	}
 
+	if ctx.ForEach() != nil {
+		l.Visit(ctx.ForEach())
+	}
+
 	if ctx.Scope() != nil {
 		l.Visit(ctx.Scope())
 	}
@@ -184,8 +216,6 @@ func (l *ClangPlus) VisitScope(ctx *ironlang.ScopeContext) {
 }
 
 func (l *ClangPlus) VisitReturn(ctx *ironlang.ReturnContext) {
-
-	println(ctx.GetText())
 
 	if ctx.RETURN() == nil {
 		if v, ok := ctx.GetParent().(*ironlang.AnonimousFuncContext); ok {
@@ -344,7 +374,50 @@ func (l *ClangPlus) VisitAssignment(ctx *ironlang.AssignmentContext) {
 		l.Visit(ctx.AnonimousFunc())
 	}
 
+	if ctx.Array() != nil {
+		l.Visit(ctx.Array())
+	}
+
 	l.StrBuilder.WriteString(";\n")
+
+}
+
+func (l *ClangPlus) VisitForEach(ctx *ironlang.ForEachContext) {
+
+	var identifier string
+	var dataType string
+	if ctx.IDENTIFIER() != nil {
+		identifier = ctx.IDENTIFIER().GetText()
+		//TODO: acessar o identificador para obter o tipo correto
+		dataType = "int"
+	} else {
+		l.TempArrCount += 1
+		identifier = "temp_arr_" + fmt.Sprintf("%v", l.TempArrCount)
+		l.StrBuilder.WriteString("auto " + identifier)
+		l.StrBuilder.WriteString(" = ")
+		l.Visit(ctx.Array())
+		l.StrBuilder.WriteString(";\n")
+
+		array := ctx.Array().(*ironlang.ArrayContext)
+		lType := array.DataTypes().(*ironlang.DataTypesContext)
+
+		if lType.TYPE_INT() != nil {
+			dataType = "int"
+		}
+
+		if lType.TYPE_FLOAT() != nil {
+			dataType = "float"
+		}
+
+	}
+
+	l.StrBuilder.WriteString("for (auto localVar : " + identifier + ") {\n")
+	l.StrBuilder.WriteString("arrForEach<" + dataType + ">(")
+	if ctx.AnonimousFunc() != nil {
+		l.Visit(ctx.AnonimousFunc())
+	}
+	l.StrBuilder.WriteString(",localVar);\n")
+	l.StrBuilder.WriteString("};\n")
 
 }
 

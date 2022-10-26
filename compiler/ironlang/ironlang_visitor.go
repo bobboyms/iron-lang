@@ -55,6 +55,12 @@ type IronLangVisitor interface {
 	// Visit a parse tree produced by IronLangParser#assignment.
 	VisitAssignment(ctx *AssignmentContext) interface{}
 
+	// Visit a parse tree produced by IronLangParser#array.
+	VisitArray(ctx *ArrayContext) interface{}
+
+	// Visit a parse tree produced by IronLangParser#forEach.
+	VisitForEach(ctx *ForEachContext) interface{}
+
 	// Visit a parse tree produced by IronLangParser#mathExpression.
 	VisitMathExpression(ctx *MathExpressionContext) interface{}
 
