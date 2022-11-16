@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
+	"fmt"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"iron-lang/compiler"
 	"iron-lang/compiler/codegenerator"
@@ -12,10 +15,23 @@ import (
 	"strings"
 )
 
+func ExampleWrite(data []byte) {
+	buf := new(bytes.Buffer)
+	err := binary.Write(buf, binary.LittleEndian, data)
+	if err != nil {
+		fmt.Println("binary.Write failed:", err)
+	}
+	fmt.Printf("% x", buf.Bytes())
+}
+
 func main() {
 
+}
+
+func mainxx() {
+
 	//Lexical analysis
-	is := antlr.NewInputStream("fn main() {float[1,2,3,4].forEach((v float)->{}) }")
+	is := antlr.NewInputStream("fn main() {let arr = int[1,2,3,4,5,6] let bb = arr.map((val int) int -> {return val * 2}).filter((val int) int -> {}).map((val int) int -> {return val * 2})}")
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}
 	lexer.RemoveErrorListeners()

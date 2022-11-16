@@ -15,6 +15,9 @@ type ClangPlus struct {
 	StrFuncBuilder   *StringBuilder
 	TempArrCount     int
 	ScopeLog         *scopes.ScopeLog
+	ScopeId          int
+	MapId            int
+	LastIdentifier   string
 }
 
 func NewClang(scopeLog *scopes.ScopeLog) *ClangPlus {
@@ -24,6 +27,8 @@ func NewClang(scopeLog *scopes.ScopeLog) *ClangPlus {
 		StrFuncBuilder:   NewStringBuilder(),
 		TempArrCount:     -1,
 		ScopeLog:         scopeLog,
+		ScopeId:          0,
+		MapId:            0,
 	}
 }
 
@@ -75,6 +80,8 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitArray(val)
 	case *ironlang.ForEachContext:
 		l.VisitForEach(val)
+	case *ironlang.MapFilterReduceContext:
+		l.VisitMapFilterReduce(val)
 
 	default:
 		panic("Unknown context")
@@ -93,10 +100,10 @@ func (l *ClangPlus) GetBuilder() *strings.Builder {
 
 func (l *ClangPlus) VisitProgram(ctx *ironlang.ProgramContext) {
 	l.StrImportBuilder.WriteString("#include <iostream>\n")
+	l.StrImportBuilder.WriteString("#include <vector>\n")
 	l.InitForEachFunction()
 	l.Visit(ctx.FuncMain())
 	l.StrBuilder.WriteString("\n")
-
 }
 
 func (l *ClangPlus) VisitArray(ctx *ironlang.ArrayContext) {
@@ -119,6 +126,88 @@ func (l *ClangPlus) VisitFunctionArgs(ctx *ironlang.FunctionArgsContext) {
 		}
 	}
 }
+
+func (l *ClangPlus) VisitMapFilterReduce(ctx *ironlang.MapFilterReduceContext) {
+
+	if ctx.IDENTIFIER() != nil {
+
+	}
+
+	if ctx.Map() != nil {
+		l.Visit(ctx.Map())
+	}
+
+	if ctx.Filter() != nil {
+		l.Visit(ctx.Filter())
+	}
+
+	if ctx.Reduce() != nil {
+		l.Visit(ctx.Reduce())
+	}
+
+	for _, context := range ctx.AllMapFilterReduce() {
+		l.Visit(context)
+	}
+
+}
+
+//var localId = 0
+//var tempName string
+//identifier := ctx.IDENTIFIER().GetText()
+//tempName = fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
+//
+//for _, mpp := range ctx.AllMap() {
+//lmp := mpp.(*ironlang.MapContext)
+//if localId == 0 {
+//localId++
+//l.MapId++
+//l.StrBuilder.WriteString("auto to_vector = " + identifier + ";\n")
+//tempName = fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
+//l.StrBuilder.WriteString("auto " + tempName + " = " + identifier + ";\n")
+//l.StrBuilder.WriteString("std::transform(" + tempName + ".begin(), " + tempName + ".end(), " + tempName + ".begin(),")
+//l.Visit(lmp.AnonimousFunc())
+//l.StrBuilder.WriteString(");\n")
+//l.LastIdentifier = tempName
+//} else {
+//l.MapId++
+//newName := fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
+//l.StrBuilder.WriteString("auto " + newName + " = " + tempName + ";\n")
+//l.StrBuilder.WriteString("std::transform(" + newName + ".begin(), " + newName + ".end(), " + newName + ".begin(),")
+//l.Visit(lmp.AnonimousFunc())
+//l.StrBuilder.WriteString(");\n")
+//tempName = newName
+//l.LastIdentifier = newName
+//}
+//}
+//
+//for _, filter := range ctx.AllFilter() {
+//
+//flt := filter.(*ironlang.FilterContext)
+//
+//if localId == 0 {
+//localId++
+//l.MapId++
+//l.StrBuilder.WriteString("auto to_vector = " + identifier + ";\n")
+//l.StrBuilder.WriteString("to_vector.clear();\n")
+//tempName = fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
+//l.StrBuilder.WriteString("auto " + tempName + " = " + identifier + ";\n")
+//l.StrBuilder.WriteString("std::copy_if(" + tempName + ".begin(), " + tempName + ".end(), std::back_inserter(to_vector),")
+//l.Visit(flt.AnonimousFunc())
+//l.StrBuilder.WriteString(");\n")
+//l.StrBuilder.WriteString(tempName + " = to_vector;\n")
+//l.LastIdentifier = tempName
+//} else {
+//l.MapId++
+//newName := fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
+//l.StrBuilder.WriteString("to_vector.clear();\n")
+//l.StrBuilder.WriteString("std::copy_if(" + tempName + ".begin(), " + tempName + ".end(), std::back_inserter(to_vector),")
+//l.Visit(flt.AnonimousFunc())
+//l.StrBuilder.WriteString(");\n")
+//l.StrBuilder.WriteString("auto " + newName + " = to_vector;\n")
+//tempName = newName
+//l.LastIdentifier = newName
+//}
+//}
 
 func (l *ClangPlus) VisitFuncType(ctx *ironlang.FuncTypeContext) {
 	//int (*func)(int x)
@@ -201,6 +290,7 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 
 func (l *ClangPlus) VisitScope(ctx *ironlang.ScopeContext) {
 
+	l.EnterScope()
 	l.ScopeLog.EnterScope(utils.GetMD5Hash(ctx.GetText()))
 
 	for _, body := range ctx.AllBodyScope() {
@@ -211,8 +301,17 @@ func (l *ClangPlus) VisitScope(ctx *ironlang.ScopeContext) {
 		l.Visit(ctx.Return())
 	}
 
+	l.ExitScope()
 	l.ScopeLog.ExitScope()
 
+}
+
+func (l *ClangPlus) EnterScope() {
+	l.ScopeId += 1
+}
+
+func (l *ClangPlus) ExitScope() {
+	l.ScopeId -= 1
 }
 
 func (l *ClangPlus) VisitReturn(ctx *ironlang.ReturnContext) {
@@ -310,11 +409,6 @@ func (l *ClangPlus) VisitFuncCallArg(ctx *ironlang.FuncCallArgContext) {
 }
 
 func (l *ClangPlus) VisitFunction(ctx *ironlang.FunctionContext) {
-	//	double (*addNumbers1)(double, double){
-	//[](double a, double b)
-	//	{
-	//	return (a + b);
-	//	}};
 
 	if ctx.DataTypes() != nil {
 		l.Visit(ctx.DataTypes())
@@ -330,12 +424,45 @@ func (l *ClangPlus) VisitFunction(ctx *ironlang.FunctionContext) {
 	l.StrBuilder.WriteString("};\n")
 }
 
+func (l *ClangPlus) IsArrayType(ctx *ironlang.VariableContext) (bool, int) {
+	if ctx.GetParent() != nil {
+		assign := ctx.GetParent().(*ironlang.AssignmentContext)
+		if assign.Array() != nil {
+			array := assign.Array().(*ironlang.ArrayContext)
+			dataType := array.DataTypes().(*ironlang.DataTypesContext)
+			var typ = 0
+			if dataType.TYPE_FLOAT() != nil {
+				typ = ironlang.IronLangLexerTYPE_FLOAT
+			} else if dataType.TYPE_INT() != nil {
+				typ = ironlang.IronLangLexerTYPE_INT
+			} else {
+				panic("Data type not found")
+			}
+
+			return true, typ
+		}
+	}
+
+	return false, 0
+}
+
 func (l *ClangPlus) VisitVariable(ctx *ironlang.VariableContext) {
 
 	if ctx.DataTypes() != nil {
 		l.Visit(ctx.DataTypes())
 	} else {
-		l.StrBuilder.WriteString("auto ")
+		isArr, typ := l.IsArrayType(ctx)
+		if isArr {
+			if typ == ironlang.IronLangLexerTYPE_INT {
+				l.StrBuilder.WriteString("std::vector<int> ")
+			}
+			if typ == ironlang.IronLangLexerTYPE_FLOAT {
+				l.StrBuilder.WriteString("std::vector<float> ")
+			}
+		} else {
+			l.StrBuilder.WriteString("auto ")
+		}
+
 	}
 
 	switch ctx.GetParent().(type) {
@@ -361,9 +488,11 @@ func (l *ClangPlus) VisitAssignment(ctx *ironlang.AssignmentContext) {
 		l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText() + " = ")
 	}
 
-	if ctx.Variable() != nil {
-		l.Visit(ctx.Variable())
-		l.StrBuilder.WriteString(" = ")
+	if ctx.MapFilterReduce() == nil {
+		if ctx.Variable() != nil {
+			l.Visit(ctx.Variable())
+			l.StrBuilder.WriteString(" = ")
+		}
 	}
 
 	if ctx.MathExpression() != nil {
@@ -376,6 +505,18 @@ func (l *ClangPlus) VisitAssignment(ctx *ironlang.AssignmentContext) {
 
 	if ctx.Array() != nil {
 		l.Visit(ctx.Array())
+	}
+
+	if ctx.MapFilterReduce() != nil {
+		l.Visit(ctx.MapFilterReduce())
+	}
+
+	if ctx.MapFilterReduce() != nil {
+		if ctx.Variable() != nil {
+			l.Visit(ctx.Variable())
+			l.StrBuilder.WriteString(" = ")
+			l.StrBuilder.WriteString(l.LastIdentifier)
+		}
 	}
 
 	l.StrBuilder.WriteString(";\n")
@@ -391,13 +532,6 @@ func (l *ClangPlus) VisitForEach(ctx *ironlang.ForEachContext) {
 		//TODO: acessar o identificador para obter o tipo correto
 		dataType = "int"
 	} else {
-		l.TempArrCount += 1
-		identifier = "temp_arr_" + fmt.Sprintf("%v", l.TempArrCount)
-		l.StrBuilder.WriteString("auto " + identifier)
-		l.StrBuilder.WriteString(" = ")
-		l.Visit(ctx.Array())
-		l.StrBuilder.WriteString(";\n")
-
 		array := ctx.Array().(*ironlang.ArrayContext)
 		lType := array.DataTypes().(*ironlang.DataTypesContext)
 
@@ -408,6 +542,13 @@ func (l *ClangPlus) VisitForEach(ctx *ironlang.ForEachContext) {
 		if lType.TYPE_FLOAT() != nil {
 			dataType = "float"
 		}
+
+		l.TempArrCount += 1
+		identifier = "temp_arr_" + fmt.Sprintf("%v", l.TempArrCount)
+		l.StrBuilder.WriteString("std::vector<" + dataType + "> " + identifier)
+		l.StrBuilder.WriteString(" = ")
+		l.Visit(ctx.Array())
+		l.StrBuilder.WriteString(";\n")
 
 	}
 

@@ -73,8 +73,6 @@ REAL_NUMBER
     | [0-9]+ DOT [0-9]+
 ;
 
-
-
 //Keywords
 FN:
     'fn'
@@ -94,6 +92,18 @@ MUT:
 
 FOR_EACH:
     'forEach'
+;
+
+MAP:
+    'map'
+;
+
+FILTER:
+    'filter'
+;
+
+REDUCE:
+    'reduce'
 ;
 
 RETURN:
@@ -171,6 +181,7 @@ assignment
     | IDENTIFIER EQ ( mathExpression | (anonimousFunc)?)
     | variable EQ array
     | IDENTIFIER EQ array
+    | variable EQ mapFilterReduce
 ;
 
 array
@@ -182,7 +193,25 @@ forEach
     | array DOT FOR_EACH L_PAREN (anonimousFunc | IDENTIFIER) R_PAREN
 ;
 
+mapFilterReduce
+    : mapFilterReduce DOT mapFilterReduce
+    | IDENTIFIER
+    | map
+    | filter
+    | reduce
+;
 
+map
+    : MAP L_PAREN (anonimousFunc) R_PAREN
+;
+
+filter
+    : FILTER L_PAREN (anonimousFunc) R_PAREN
+;
+
+reduce
+    : REDUCE L_PAREN (anonimousFunc) R_PAREN
+;
 
 mathExpression
    :  mathExpression  (MULT | DIV)  mathExpression

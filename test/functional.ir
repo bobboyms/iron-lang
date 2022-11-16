@@ -5,4 +5,19 @@ fn main() {
     float[1,2,3,4].forEach((v float) -> {
         let x = 2 * v
     })
+
+    let n = arr.map((val int) int -> {
+        return val * 2
+    })
+    .map((val int) int -> {
+         return val * 3
+    })
+    .map((val int) int -> {
+         return val * 4
+    })
+
+    n.forEach((v int) -> {
+        let x = v
+    })
+
 }
