@@ -1,0 +1,20 @@
+fn main() {
+
+    float[1,2,3,4].forEach((v float) -> {
+        let x = 2 * v
+    })
+
+    let arr = int[1,2,3,4]
+    arr.forEach((val int) -> {})
+
+    let result = arr.map((val int) int -> {
+        return val * 2
+     })
+    .filter((val int) int -> {
+        return val
+     })
+    .reduce((a int, b int) int -> {
+        return a + b
+    })
+
+}

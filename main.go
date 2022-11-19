@@ -26,12 +26,8 @@ func ExampleWrite(data []byte) {
 
 func main() {
 
-}
-
-func mainxx() {
-
 	//Lexical analysis
-	is := antlr.NewInputStream("fn main() {let arr = int[1,2,3,4,5,6] let bb = arr.map((val int) int -> {return val * 2}).filter((val int) int -> {}).map((val int) int -> {return val * 2})}")
+	is := antlr.NewInputStream("fn main() {let arr = int[1,2,3,4,5,6] let bb = arr.map((val int) int -> {return val * 2}).filter((val int) int -> {return val * 2}).map((val int) int -> {return val * 2}).reduce((a int, b int) int -> {return a + b})}")
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}
 	lexer.RemoveErrorListeners()

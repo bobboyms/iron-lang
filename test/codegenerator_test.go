@@ -111,15 +111,20 @@ func TestCodeGeneratorFunctions(t *testing.T) {
 
 }
 
-func TestCodeGeneratorFunctional(t *testing.T) {
+func TestCodeGeneratorMapFilterReduce(t *testing.T) {
 
-	f, err := os.Open("functional.ir")
+	f, err := os.Open("map_filter_reduce.ir")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer f.Close()
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+
+		}
+	}(f)
 
 	scanner := bufio.NewScanner(f)
 

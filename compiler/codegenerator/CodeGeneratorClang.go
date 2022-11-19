@@ -18,6 +18,8 @@ type ClangPlus struct {
 	ScopeId          int
 	MapId            int
 	LastIdentifier   string
+	//MapTempName      string
+	VectorTempName string
 }
 
 func NewClang(scopeLog *scopes.ScopeLog) *ClangPlus {
@@ -82,6 +84,12 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitForEach(val)
 	case *ironlang.MapFilterReduceContext:
 		l.VisitMapFilterReduce(val)
+	case *ironlang.MapContext:
+		l.VisitMap(val)
+	case *ironlang.FilterContext:
+		l.VisitFilter(val)
+	case *ironlang.ReduceContext:
+		l.VisitReduce(val)
 
 	default:
 		panic("Unknown context")
@@ -101,6 +109,7 @@ func (l *ClangPlus) GetBuilder() *strings.Builder {
 func (l *ClangPlus) VisitProgram(ctx *ironlang.ProgramContext) {
 	l.StrImportBuilder.WriteString("#include <iostream>\n")
 	l.StrImportBuilder.WriteString("#include <vector>\n")
+	l.StrImportBuilder.WriteString("#include <numeric>\n")
 	l.InitForEachFunction()
 	l.Visit(ctx.FuncMain())
 	l.StrBuilder.WriteString("\n")
@@ -127,21 +136,54 @@ func (l *ClangPlus) VisitFunctionArgs(ctx *ironlang.FunctionArgsContext) {
 	}
 }
 
+func (l *ClangPlus) VisitMap(ctx *ironlang.MapContext) {
+	l.StrBuilder.WriteString("std::transform(" + l.LastIdentifier + ".begin(), " + l.LastIdentifier + ".end(), " + l.LastIdentifier + ".begin(),")
+	l.Visit(ctx.AnonimousFunc())
+	l.StrBuilder.WriteString(");\n")
+}
+
+func (l *ClangPlus) VisitFilter(ctx *ironlang.FilterContext) {
+	l.StrBuilder.WriteString("std::copy_if(" + l.LastIdentifier + ".begin(), " + l.LastIdentifier + ".end(), std::back_inserter(" + l.VectorTempName + "),")
+	l.Visit(ctx.AnonimousFunc())
+	l.StrBuilder.WriteString(");\n")
+}
+
+func (l *ClangPlus) VisitReduce(ctx *ironlang.ReduceContext) {
+	reduceResultTempName := fmt.Sprintf("reduce_result_s%v_m%v", l.ScopeId, l.MapId)
+	l.StrBuilder.WriteString("auto " + reduceResultTempName + " = ")
+	l.StrBuilder.WriteString("std::reduce(" + l.LastIdentifier + ".begin(), " + l.LastIdentifier + ".end(), 0,")
+	l.Visit(ctx.AnonimousFunc())
+	l.StrBuilder.WriteString(");\n")
+	l.LastIdentifier = reduceResultTempName
+}
+
 func (l *ClangPlus) VisitMapFilterReduce(ctx *ironlang.MapFilterReduceContext) {
 
 	if ctx.IDENTIFIER() != nil {
-
+		l.LastIdentifier = ctx.IDENTIFIER().GetText()
 	}
 
 	if ctx.Map() != nil {
+		l.MapId++
+		mapTempName := fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
+		l.StrBuilder.WriteString("auto " + mapTempName + " = " + l.LastIdentifier + ";\n")
+		l.LastIdentifier = mapTempName
 		l.Visit(ctx.Map())
 	}
-
 	if ctx.Filter() != nil {
+		l.MapId++
+		l.VectorTempName = fmt.Sprintf("vec_s%v_m%v", l.ScopeId, l.MapId)
+		l.StrBuilder.WriteString("auto " + l.VectorTempName + " = " + l.LastIdentifier + ";\n")
+		l.StrBuilder.WriteString("" + l.VectorTempName + ".clear();\n")
 		l.Visit(ctx.Filter())
+		l.LastIdentifier = l.VectorTempName
 	}
 
 	if ctx.Reduce() != nil {
+		l.MapId++
+		reduceTempName := fmt.Sprintf("reduce_s%v_m%v", l.ScopeId, l.MapId)
+		l.StrBuilder.WriteString("auto " + reduceTempName + " = " + l.LastIdentifier + ";\n")
+		l.LastIdentifier = reduceTempName
 		l.Visit(ctx.Reduce())
 	}
 
@@ -151,66 +193,7 @@ func (l *ClangPlus) VisitMapFilterReduce(ctx *ironlang.MapFilterReduceContext) {
 
 }
 
-//var localId = 0
-//var tempName string
-//identifier := ctx.IDENTIFIER().GetText()
-//tempName = fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
-//
-//for _, mpp := range ctx.AllMap() {
-//lmp := mpp.(*ironlang.MapContext)
-//if localId == 0 {
-//localId++
-//l.MapId++
-//l.StrBuilder.WriteString("auto to_vector = " + identifier + ";\n")
-//tempName = fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
-//l.StrBuilder.WriteString("auto " + tempName + " = " + identifier + ";\n")
-//l.StrBuilder.WriteString("std::transform(" + tempName + ".begin(), " + tempName + ".end(), " + tempName + ".begin(),")
-//l.Visit(lmp.AnonimousFunc())
-//l.StrBuilder.WriteString(");\n")
-//l.LastIdentifier = tempName
-//} else {
-//l.MapId++
-//newName := fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
-//l.StrBuilder.WriteString("auto " + newName + " = " + tempName + ";\n")
-//l.StrBuilder.WriteString("std::transform(" + newName + ".begin(), " + newName + ".end(), " + newName + ".begin(),")
-//l.Visit(lmp.AnonimousFunc())
-//l.StrBuilder.WriteString(");\n")
-//tempName = newName
-//l.LastIdentifier = newName
-//}
-//}
-//
-//for _, filter := range ctx.AllFilter() {
-//
-//flt := filter.(*ironlang.FilterContext)
-//
-//if localId == 0 {
-//localId++
-//l.MapId++
-//l.StrBuilder.WriteString("auto to_vector = " + identifier + ";\n")
-//l.StrBuilder.WriteString("to_vector.clear();\n")
-//tempName = fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
-//l.StrBuilder.WriteString("auto " + tempName + " = " + identifier + ";\n")
-//l.StrBuilder.WriteString("std::copy_if(" + tempName + ".begin(), " + tempName + ".end(), std::back_inserter(to_vector),")
-//l.Visit(flt.AnonimousFunc())
-//l.StrBuilder.WriteString(");\n")
-//l.StrBuilder.WriteString(tempName + " = to_vector;\n")
-//l.LastIdentifier = tempName
-//} else {
-//l.MapId++
-//newName := fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
-//l.StrBuilder.WriteString("to_vector.clear();\n")
-//l.StrBuilder.WriteString("std::copy_if(" + tempName + ".begin(), " + tempName + ".end(), std::back_inserter(to_vector),")
-//l.Visit(flt.AnonimousFunc())
-//l.StrBuilder.WriteString(");\n")
-//l.StrBuilder.WriteString("auto " + newName + " = to_vector;\n")
-//tempName = newName
-//l.LastIdentifier = newName
-//}
-//}
-
 func (l *ClangPlus) VisitFuncType(ctx *ironlang.FuncTypeContext) {
-	//int (*func)(int x)
 	if ctx.DataTypes() != nil {
 		l.Visit(ctx.DataTypes())
 	} else {
