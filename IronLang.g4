@@ -199,6 +199,7 @@ mapFilterReduce
     | map
     | filter
     | reduce
+    | array
 ;
 
 map

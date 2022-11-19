@@ -159,6 +159,25 @@ func (l *ClangPlus) VisitReduce(ctx *ironlang.ReduceContext) {
 
 func (l *ClangPlus) VisitMapFilterReduce(ctx *ironlang.MapFilterReduceContext) {
 
+	if ctx.Array() != nil {
+
+		arr := ctx.Array().(*ironlang.ArrayContext)
+		types := arr.DataTypes().(*ironlang.DataTypesContext)
+
+		arrTempName := fmt.Sprintf("arr_s%v_m%v", l.ScopeId, l.MapId)
+		if types.TYPE_INT() != nil {
+			l.StrBuilder.WriteString("std::vector<int> " + arrTempName + " = ")
+		} else if types.TYPE_FLOAT() != nil {
+			l.StrBuilder.WriteString("std::vector<float> " + arrTempName + " = ")
+		} else {
+			panic("Invalid data type")
+		}
+
+		l.Visit(ctx.Array())
+		l.StrBuilder.WriteString(";\n")
+		l.LastIdentifier = arrTempName
+	}
+
 	if ctx.IDENTIFIER() != nil {
 		l.LastIdentifier = ctx.IDENTIFIER().GetText()
 	}
@@ -167,8 +186,8 @@ func (l *ClangPlus) VisitMapFilterReduce(ctx *ironlang.MapFilterReduceContext) {
 		l.MapId++
 		mapTempName := fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
 		l.StrBuilder.WriteString("auto " + mapTempName + " = " + l.LastIdentifier + ";\n")
-		l.LastIdentifier = mapTempName
 		l.Visit(ctx.Map())
+		l.LastIdentifier = mapTempName
 	}
 	if ctx.Filter() != nil {
 		l.MapId++
@@ -183,8 +202,8 @@ func (l *ClangPlus) VisitMapFilterReduce(ctx *ironlang.MapFilterReduceContext) {
 		l.MapId++
 		reduceTempName := fmt.Sprintf("reduce_s%v_m%v", l.ScopeId, l.MapId)
 		l.StrBuilder.WriteString("auto " + reduceTempName + " = " + l.LastIdentifier + ";\n")
-		l.LastIdentifier = reduceTempName
 		l.Visit(ctx.Reduce())
+		l.LastIdentifier = reduceTempName
 	}
 
 	for _, context := range ctx.AllMapFilterReduce() {
