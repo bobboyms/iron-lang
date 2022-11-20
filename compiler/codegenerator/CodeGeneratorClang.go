@@ -90,6 +90,16 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitFilter(val)
 	case *ironlang.ReduceContext:
 		l.VisitReduce(val)
+	case *ironlang.RelExpressionContext:
+		l.VisitRelExpression(val)
+	case *ironlang.IfScopeContext:
+		l.VisitIfScope(val)
+	case *ironlang.IfExpressionContext:
+		l.VisitIfExpression(val)
+	case *ironlang.ElseExpressionContext:
+		l.VisitElseExpression(val)
+	case *ironlang.ElseIfExpressionContext:
+		l.VisitElseIfExpression(val)
 
 	default:
 		panic("Unknown context")
@@ -113,6 +123,71 @@ func (l *ClangPlus) VisitProgram(ctx *ironlang.ProgramContext) {
 	l.InitForEachFunction()
 	l.Visit(ctx.FuncMain())
 	l.StrBuilder.WriteString("\n")
+}
+
+func (l *ClangPlus) VisitElseIfExpression(ctx *ironlang.ElseIfExpressionContext) {
+	if ctx.ELSE() != nil {
+		l.StrBuilder.WriteString(ctx.ELSE().GetText())
+		l.StrBuilder.WriteString(" ")
+	}
+
+	if ctx.IF() != nil {
+		l.StrBuilder.WriteString(ctx.IF().GetText())
+		l.StrBuilder.WriteString(" ")
+	}
+
+	if ctx.RelExpression() != nil {
+		l.StrBuilder.WriteString("(")
+		l.Visit(ctx.RelExpression())
+		l.StrBuilder.WriteString(")")
+	}
+
+	if ctx.IfScope() != nil {
+		l.Visit(ctx.IfScope())
+	}
+
+	if ctx.ElseExpression() != nil {
+		l.Visit(ctx.ElseExpression())
+	}
+}
+
+func (l *ClangPlus) VisitElseExpression(ctx *ironlang.ElseExpressionContext) {
+	if ctx.ELSE() != nil {
+		l.StrBuilder.WriteString(ctx.ELSE().GetText())
+	}
+	if ctx.IfScope() != nil {
+		l.Visit(ctx.IfScope())
+	}
+}
+
+func (l *ClangPlus) VisitIfExpression(ctx *ironlang.IfExpressionContext) {
+
+	l.StrBuilder.WriteString("if")
+	if ctx.RelExpression() != nil {
+		l.StrBuilder.WriteString("(")
+		l.Visit(ctx.RelExpression())
+		l.StrBuilder.WriteString(")")
+	}
+	if ctx.IfScope() != nil {
+		l.Visit(ctx.IfScope())
+	}
+
+	if ctx.ElseIfExpression() != nil {
+		l.Visit(ctx.ElseIfExpression())
+	}
+
+	if ctx.ElseExpression() != nil {
+		l.Visit(ctx.ElseExpression())
+	}
+
+}
+
+func (l *ClangPlus) VisitIfScope(ctx *ironlang.IfScopeContext) {
+	l.StrBuilder.WriteString("{\n")
+	for _, bodyScope := range ctx.AllBodyScope() {
+		l.Visit(bodyScope)
+	}
+	l.StrBuilder.WriteString("}\n")
 }
 
 func (l *ClangPlus) VisitArray(ctx *ironlang.ArrayContext) {
@@ -262,6 +337,10 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 
 	if ctx.Assignment() != nil {
 		l.Visit(ctx.Assignment())
+	}
+
+	if ctx.IfExpression() != nil {
+		l.Visit(ctx.IfExpression())
 	}
 
 	var builder = NewStringBuilder()
@@ -494,12 +573,16 @@ func (l *ClangPlus) VisitAssignment(ctx *ironlang.AssignmentContext) {
 		}
 	}
 
+	if ctx.AnonimousFunc() != nil {
+		l.Visit(ctx.AnonimousFunc())
+	}
+
 	if ctx.MathExpression() != nil {
 		l.Visit(ctx.MathExpression())
 	}
 
-	if ctx.AnonimousFunc() != nil {
-		l.Visit(ctx.AnonimousFunc())
+	if ctx.RelExpression() != nil {
+		l.Visit(ctx.RelExpression())
 	}
 
 	if ctx.Array() != nil {
@@ -558,6 +641,77 @@ func (l *ClangPlus) VisitForEach(ctx *ironlang.ForEachContext) {
 	}
 	l.StrBuilder.WriteString(",localVar);\n")
 	l.StrBuilder.WriteString("};\n")
+
+}
+
+func (l *ClangPlus) VisitRelExpression(ctx *ironlang.RelExpressionContext) {
+
+	if ctx.NOT() != nil {
+		l.StrBuilder.WriteString(ctx.NOT().GetText() + " ")
+		l.Visit(ctx.AllRelExpression()[0])
+	}
+
+	if ctx.L_PAREN() != nil && ctx.R_PAREN() != nil {
+		l.StrBuilder.WriteString("(")
+		l.Visit(ctx.AllRelExpression()[0])
+		l.StrBuilder.WriteString(")")
+	}
+
+	if ctx.Atom() != nil {
+		l.Visit(ctx.Atom())
+		l.StrBuilder.WriteString(" ")
+	}
+
+	if ctx.FuncCall() != nil {
+		l.Visit(ctx.FuncCall())
+		l.StrBuilder.WriteString(" ")
+	}
+
+	if ctx.TYPE_BOOLEAN() != nil {
+		l.StrBuilder.WriteString(ctx.TYPE_BOOLEAN().GetText())
+		l.StrBuilder.WriteString(" ")
+	}
+
+	if len(ctx.AllRelExpression()) == 2 {
+		l.Visit(ctx.AllRelExpression()[0])
+		if ctx.TYPE_BOOLEAN() != nil {
+			l.StrBuilder.WriteString(ctx.TYPE_BOOLEAN().GetText() + " ")
+		}
+
+		if ctx.EQEQ() != nil {
+			l.StrBuilder.WriteString(ctx.EQEQ().GetText() + " ")
+		}
+
+		if ctx.DIF() != nil {
+			l.StrBuilder.WriteString(ctx.DIF().GetText() + " ")
+		}
+
+		if ctx.LT() != nil {
+			l.StrBuilder.WriteString(ctx.LT().GetText() + " ")
+		}
+
+		if ctx.GT() != nil {
+			l.StrBuilder.WriteString(ctx.GT().GetText() + " ")
+		}
+
+		if ctx.LTEQ() != nil {
+			l.StrBuilder.WriteString(ctx.LTEQ().GetText() + " ")
+		}
+
+		if ctx.GTEQ() != nil {
+			l.StrBuilder.WriteString(ctx.GTEQ().GetText() + " ")
+		}
+
+		if ctx.AND() != nil {
+			l.StrBuilder.WriteString(ctx.AND().GetText() + " ")
+		}
+
+		if ctx.OR() != nil {
+			l.StrBuilder.WriteString(ctx.OR().GetText() + " ")
+		}
+
+		l.Visit(ctx.AllRelExpression()[1])
+	}
 
 }
 

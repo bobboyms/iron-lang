@@ -1,0 +1,33 @@
+fn main() {
+
+    let func = () int -> 2
+
+    let x = 2
+    let y = 2 + 5 / 8 + func()
+    let n = y and 2 < 5 or (y < x) or not (2 != 6)
+
+    if x != y and 2 < 5 or (y < x) or not (2 != 6) {
+       let x = 20
+    }
+
+    if true {
+       int[1,2,3,4].forEach((v int) -> {
+            let x = 2 * v
+       })
+    }
+
+    if n {
+      let x = 20 + func()
+    } else {
+      let x = func()
+    }
+
+    if false {
+        let x = 20 + func()
+    }  else if x != y and 2 < 5 or (y < x) or not (2 != 6) {
+        let x = func()
+    } else {
+        func()
+    }
+
+}

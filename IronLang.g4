@@ -97,6 +97,18 @@ IF:
     'if'
 ;
 
+OR:
+    'or'
+;
+
+NOT:
+    'not'
+;
+
+AND:
+    'and'
+;
+
 LET:
     'let'
 ;
@@ -220,7 +232,8 @@ funcArg: (MUT)? IDENTIFIER dataTypes | funcType;
 dataTypes:  TYPE_INT | TYPE_FLOAT;
 
 assignment
-    : variable EQ mathExpression
+    : variable EQ anonimousFunc
+    | variable EQ mathExpression
     | IDENTIFIER EQ mathExpression
     | variable EQ relExpression
     | IDENTIFIER EQ relExpression
@@ -247,13 +260,6 @@ mapFilterReduce
     | array
 ;
 
-relExpression
-    : relExpression (EQEQ | DIF | LT | GT | LTEQ | GTEQ) relExpression
-    | atom
-    | funcCall
-    | TYPE_BOOLEAN
-;
-
 map
     : MAP L_PAREN (anonimousFunc) R_PAREN
 ;
@@ -264,6 +270,15 @@ filter
 
 reduce
     : REDUCE L_PAREN (anonimousFunc) R_PAREN
+;
+
+relExpression
+    : relExpression (EQEQ | DIF | LT | GT | LTEQ | GTEQ | AND | OR ) relExpression
+    | L_PAREN relExpression R_PAREN
+    | NOT relExpression
+    | atom
+    | funcCall
+    | TYPE_BOOLEAN
 ;
 
 mathExpression

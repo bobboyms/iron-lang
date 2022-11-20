@@ -93,7 +93,12 @@ func TestCodeGeneratorFunctions(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	defer f.Close()
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+
+		}
+	}(f)
 
 	scanner := bufio.NewScanner(f)
 
@@ -114,6 +119,37 @@ func TestCodeGeneratorFunctions(t *testing.T) {
 func TestCodeGeneratorMapFilterReduce(t *testing.T) {
 
 	f, err := os.Open("map_filter_reduce.ir")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+
+		}
+	}(f)
+
+	scanner := bufio.NewScanner(f)
+
+	builder := strings.Builder{}
+	for scanner.Scan() {
+		builder.WriteString(scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	Compiler(builder.String())
+	RunMake()
+
+}
+
+func TestCodeGeneratorControlFlow(t *testing.T) {
+
+	f, err := os.Open("control_flow.ir")
 
 	if err != nil {
 		log.Fatal(err)

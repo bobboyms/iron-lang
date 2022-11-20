@@ -16,6 +16,7 @@ import (
 )
 
 func ExampleWrite(data []byte) {
+
 	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.LittleEndian, data)
 	if err != nil {
@@ -26,7 +27,7 @@ func ExampleWrite(data []byte) {
 
 func main() {
 
-	is := antlr.NewInputStream("fn main() {let x = int[1,2,3,4].filter((v int) int -> {return v})}")
+	is := antlr.NewInputStream("fn main() {if 2 < 3 {} else if true {} else {let x = 20}}")
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}
 	lexer.RemoveErrorListeners()
