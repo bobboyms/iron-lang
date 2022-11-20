@@ -7,14 +7,24 @@ fn main() {
     let arr = int[1,2,3,4]
     arr.forEach((val int) -> {})
 
-    let result = arr.map((val int) int -> {
-        return val * 2
-    })
-    .filter((val int) int -> {
-        return val
-    })
-    .reduce((a int, b int) int -> {
-        return a + b
-    })
+    let r1 = arr.map((val int) int -> {
+            return val * 2
+        })
+        .filter((val int) int -> {
+            return val
+        })
+        .reduce((a int, b int) int -> {
+            return a + b
+        })
+
+    let r2 = float[1,2,3,4].map((val float) float -> {
+            return val * 2
+        })
+        .filter((val float) float -> {
+            return val
+        })
+        .reduce((a float, b float) float -> {
+            return a + b
+        })
 
 }

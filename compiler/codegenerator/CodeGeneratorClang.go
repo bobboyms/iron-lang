@@ -359,9 +359,6 @@ func (l *ClangPlus) VisitFuncCall(ctx *ironlang.FuncCallContext) {
 
 func (l *ClangPlus) VisitAnonymousFunc(ctx *ironlang.AnonimousFuncContext) {
 
-	//funcName := fmt.Sprintf("anonymous_%v", l.AnonymousCount)
-	//l.StrBuilder.WriteString(funcName)
-
 	l.StrBuilder.WriteString("[]")
 	if ctx.L_PAREN() != nil {
 		l.StrBuilder.WriteString("(")

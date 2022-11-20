@@ -51,13 +51,28 @@ PIPE
     : '|'
 ;
 
-COMPOP
-    : '=='
-    | '!='
-    | '<'
-    | '<='
-    | '>'
-    | '>='
+GTEQ:
+    '>='
+;
+
+LTEQ:
+    '<='
+;
+
+GT:
+    '>'
+;
+
+LT:
+    '<'
+;
+
+DIF:
+    '!='
+;
+
+EQEQ:
+    '=='
 ;
 
 ARROW
@@ -78,8 +93,8 @@ FN:
     'fn'
 ;
 
-PRINT_LN:
-    'println'
+IF:
+    'if'
 ;
 
 LET:
@@ -88,6 +103,10 @@ LET:
 
 MUT:
     'mut'
+;
+
+ELSE:
+    'else'
 ;
 
 FOR_EACH:
@@ -110,6 +129,10 @@ RETURN:
     'return'
 ;
 
+PRINT_LN:
+    'println'
+;
+
 //Var Types
 TYPE_INT
     : 'int'
@@ -117,6 +140,10 @@ TYPE_INT
 
 TYPE_FLOAT
     : 'float'
+;
+
+TYPE_BOOLEAN:
+    'true' | 'false'
 ;
 
 IDENTIFIER:
@@ -164,7 +191,23 @@ anonimousFunc
     | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? ARROW (bodyScope)? (return)?
 ;
 
-bodyScope: variable | assignment | function | funcCall | scope | println | forEach ;
+ifScope:
+    L_CURLY (bodyScope)* R_CURLY
+;
+
+elseExpression
+    : ELSE ifScope
+;
+
+elseIfExpression
+    : ELSE IF relExpression ifScope (elseIfExpression | elseExpression)?
+;
+
+ifExpression
+   : IF relExpression ifScope (elseExpression | elseIfExpression )?
+;
+
+bodyScope: variable | assignment | ifExpression | function | funcCall | scope | println | forEach ;
 
 println: PRINT_LN L_PAREN (variable | IDENTIFIER) R_PAREN;
 
@@ -177,8 +220,10 @@ funcArg: (MUT)? IDENTIFIER dataTypes | funcType;
 dataTypes:  TYPE_INT | TYPE_FLOAT;
 
 assignment
-    : variable EQ ( mathExpression | (anonimousFunc)?)
-    | IDENTIFIER EQ ( mathExpression | (anonimousFunc)?)
+    : variable EQ mathExpression
+    | IDENTIFIER EQ mathExpression
+    | variable EQ relExpression
+    | IDENTIFIER EQ relExpression
     | variable EQ array
     | IDENTIFIER EQ array
     | variable EQ mapFilterReduce
@@ -202,6 +247,13 @@ mapFilterReduce
     | array
 ;
 
+relExpression
+    : relExpression (EQEQ | DIF | LT | GT | LTEQ | GTEQ) relExpression
+    | atom
+    | funcCall
+    | TYPE_BOOLEAN
+;
+
 map
     : MAP L_PAREN (anonimousFunc) R_PAREN
 ;
@@ -218,8 +270,8 @@ mathExpression
    :  mathExpression  (MULT | DIV)  mathExpression
    |  mathExpression  (PLUS | MINUS) mathExpression
    |  L_PAREN mathExpression R_PAREN
-   |  (PLUS | MINUS)? atom
-   |  (PLUS | MINUS)? funcCall
+   |  atom
+   |  funcCall
    ;
 
 atom
