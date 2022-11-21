@@ -1,4 +1,7 @@
 fn main() {
+
+    let nada = () -> {2+2}
+
     let func1 = () int -> 2 + 2
     let func2 = (x int, y float) int -> (x + y) * 3
     let func3 = () int -> {

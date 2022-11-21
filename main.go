@@ -27,7 +27,7 @@ func ExampleWrite(data []byte) {
 
 func main() {
 
-	is := antlr.NewInputStream("fn main() {if 2 < 3 {} else if true {} else {let x = 20}}")
+	is := antlr.NewInputStream("fn main() {}")
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}
 	lexer.RemoveErrorListeners()
@@ -67,7 +67,12 @@ func NewFile(strBuilder *strings.Builder) {
 		log.Fatal(err)
 	}
 
-	defer f.Close()
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(f)
 
 	_, err = f.WriteString(strBuilder.String())
 

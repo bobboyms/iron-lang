@@ -19,4 +19,5 @@
 /main.o
 /source.ll
 /source.c
-/source.c
+/test/main
+/test/main.o

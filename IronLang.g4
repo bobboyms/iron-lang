@@ -47,6 +47,10 @@ PLUS_PLUS
     : '++'
 ;
 
+MINUS_MINUS:
+    '--'
+;
+
 PIPE
     : '|'
 ;
@@ -89,6 +93,11 @@ REAL_NUMBER
 ;
 
 //Keywords
+
+DO:
+    'do'
+;
+
 FN:
     'fn'
 ;
@@ -123,6 +132,14 @@ LET:
 
 MUT:
     'mut'
+;
+
+BREAK:
+    'break'
+;
+
+CONTINUE:
+    'continue'
 ;
 
 ELSE:
@@ -196,7 +213,7 @@ funcType
 ;
 
 return
-    : (RETURN)? mathExpression
+    : (RETURN)? mathExpression | relExpression | IDENTIFIER
 ;
 
 scope:
@@ -231,15 +248,25 @@ ifExpression
    : IF relExpression ifScope (elseExpression | elseIfExpression )?
 ;
 
-loopWhile
-    : WHILE relExpression L_CURLY (bodyScope)* R_CURLY
+loopScope
+    : CONTINUE | BREAK | bodyScope
 ;
 
+loopDoWhile
+    : DO L_CURLY (loopScope)* R_CURLY (WHILE relExpression)?
+;
+
+loopWhile
+    : WHILE relExpression L_CURLY (loopScope)* R_CURLY
+;
 
 loopForIn
-    : FOR IDENTIFIER IN (IDENTIFIER |  L_PAREN INT_NUMBER '..' INT_NUMBER R_PAREN) L_CURLY (bodyScope)* R_CURLY
+    : FOR IDENTIFIER IN (IDENTIFIER |  L_PAREN INT_NUMBER '..' INT_NUMBER R_PAREN) L_CURLY (loopScope)* R_CURLY
 ;
-//for element in a {
+
+loopForI
+    : FOR assignment ';' relExpression ';' mathExpression L_CURLY (loopScope)* R_CURLY
+;
 
 bodyScope
     : variable
@@ -251,7 +278,9 @@ bodyScope
     | println
     | forEach
     | loopWhile
+    | loopDoWhile
     | loopForIn
+    | loopForI
 ;
 
 println: PRINT_LN L_PAREN (variable | IDENTIFIER) R_PAREN;
@@ -306,24 +335,25 @@ reduce
 ;
 
 relExpression
-    : relExpression (EQEQ | DIF | LT | GT | LTEQ | GTEQ | AND | OR ) relExpression
+    : relExpression (EQEQ | DIF | LT | GT | LTEQ | GTEQ | AND | OR) relExpression
     | L_PAREN relExpression R_PAREN
     | NOT relExpression
+    | IDENTIFIER
     | atom
     | funcCall
     | TYPE_BOOLEAN
 ;
 
 mathExpression
-   :  mathExpression  (MULT | DIV)  mathExpression
-   |  mathExpression  (PLUS | MINUS) mathExpression
-   |  L_PAREN mathExpression R_PAREN
-   |  atom
-   |  funcCall
+   : mathExpression  (MULT | DIV)  mathExpression
+   | mathExpression  (PLUS | MINUS) mathExpression
+   | L_PAREN mathExpression R_PAREN
+   | IDENTIFIER (PLUS_PLUS | MINUS_MINUS)?
+   | atom
+   | funcCall
    ;
 
 atom
    : INT_NUMBER
    | REAL_NUMBER
-   | IDENTIFIER
    ;

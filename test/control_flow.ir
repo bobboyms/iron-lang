@@ -38,10 +38,23 @@ fn main() {
     let values = int[1,2,3,4,5]
     for v in values {
         let x = v
+        break
     }
 
     for v in (1..10) {
         let x = v
+        continue
     }
+
+    do {
+        break
+    }
+
+    mut let ch = 0
+    do {
+        ch = ch + 1
+    } while ch < 10
+
+    for let i = 0; i < 5; i++ {}
 
 }

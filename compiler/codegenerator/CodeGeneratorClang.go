@@ -105,6 +105,12 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitLoopWhile(val)
 	case *ironlang.LoopForInContext:
 		l.VisitLoopForIn(val)
+	case *ironlang.LoopScopeContext:
+		l.VisitLoopScope(val)
+	case *ironlang.LoopDoWhileContext:
+		l.VisitLoopDoWhile(val)
+	case *ironlang.LoopForIContext:
+		l.VisitLoopForI(val)
 
 	default:
 		panic("Unknown context")
@@ -130,6 +136,66 @@ func (l *ClangPlus) VisitProgram(ctx *ironlang.ProgramContext) {
 	l.StrBuilder.WriteString("\n")
 }
 
+func (l *ClangPlus) VisitLoopForI(ctx *ironlang.LoopForIContext) {
+
+	l.StrBuilder.WriteString(ctx.FOR().GetText())
+	l.StrBuilder.WriteString(" (")
+	l.Visit(ctx.Assignment())
+	//l.StrBuilder.WriteString(";")
+	l.Visit(ctx.RelExpression())
+	l.StrBuilder.WriteString(";")
+	l.Visit(ctx.MathExpression())
+	l.StrBuilder.WriteString(")")
+	l.StrBuilder.WriteString("{\n")
+	for _, loopScope := range ctx.AllLoopScope() {
+		l.Visit(loopScope)
+	}
+	l.StrBuilder.WriteString("}\n")
+
+}
+
+func (l *ClangPlus) VisitLoopScope(ctx *ironlang.LoopScopeContext) {
+
+	if ctx.BREAK() != nil {
+		l.StrBuilder.WriteString("break;\n")
+		return
+	}
+
+	if ctx.CONTINUE() != nil {
+		l.StrBuilder.WriteString("continue;\n")
+		return
+	}
+
+	if ctx.BodyScope() != nil {
+		l.Visit(ctx.BodyScope())
+	}
+
+}
+
+func (l *ClangPlus) VisitLoopDoWhile(ctx *ironlang.LoopDoWhileContext) {
+
+	l.StrBuilder.WriteString(ctx.DO().GetText())
+	l.StrBuilder.WriteString(" ")
+	l.StrBuilder.WriteString("{\n")
+	for _, loopScope := range ctx.AllLoopScope() {
+		l.Visit(loopScope)
+	}
+	l.StrBuilder.WriteString("}")
+	l.StrBuilder.WriteString(" ")
+
+	if ctx.WHILE() != nil {
+		l.StrBuilder.WriteString(ctx.WHILE().GetText())
+		l.StrBuilder.WriteString(" (")
+		l.Visit(ctx.RelExpression())
+		l.StrBuilder.WriteString(");\n")
+	} else {
+		l.StrBuilder.WriteString("while")
+		l.StrBuilder.WriteString(" (")
+		l.StrBuilder.WriteString("true")
+		l.StrBuilder.WriteString(");\n")
+	}
+}
+
 func (l *ClangPlus) VisitLoopForIn(ctx *ironlang.LoopForInContext) {
 
 	if ctx.L_PAREN() != nil {
@@ -153,8 +219,8 @@ func (l *ClangPlus) VisitLoopForIn(ctx *ironlang.LoopForInContext) {
 		l.StrBuilder.WriteString(vectorName)
 		l.StrBuilder.WriteString(") ")
 		l.StrBuilder.WriteString("{\n")
-		for _, bodyScope := range ctx.AllBodyScope() {
-			l.Visit(bodyScope)
+		for _, loopScope := range ctx.AllLoopScope() {
+			l.Visit(loopScope)
 		}
 		l.StrBuilder.WriteString("}\n")
 
@@ -167,8 +233,8 @@ func (l *ClangPlus) VisitLoopForIn(ctx *ironlang.LoopForInContext) {
 		l.StrBuilder.WriteString(ctx.IDENTIFIER(1).GetText())
 		l.StrBuilder.WriteString(") ")
 		l.StrBuilder.WriteString("{\n")
-		for _, bodyScope := range ctx.AllBodyScope() {
-			l.Visit(bodyScope)
+		for _, loopScope := range ctx.AllLoopScope() {
+			l.Visit(loopScope)
 		}
 		l.StrBuilder.WriteString("}\n")
 	}
@@ -181,8 +247,8 @@ func (l *ClangPlus) VisitLoopWhile(ctx *ironlang.LoopWhileContext) {
 	l.Visit(ctx.RelExpression())
 	l.StrBuilder.WriteString(") ")
 	l.StrBuilder.WriteString("{\n")
-	for _, bodyScope := range ctx.AllBodyScope() {
-		l.Visit(bodyScope)
+	for _, loopScope := range ctx.AllLoopScope() {
+		l.Visit(loopScope)
 	}
 	l.StrBuilder.WriteString("}\n")
 }
@@ -405,12 +471,20 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 		l.Visit(ctx.IfExpression())
 	}
 
+	if ctx.LoopDoWhile() != nil {
+		l.Visit(ctx.LoopDoWhile())
+	}
+
 	if ctx.LoopWhile() != nil {
 		l.Visit(ctx.LoopWhile())
 	}
 
 	if ctx.LoopForIn() != nil {
 		l.Visit(ctx.LoopForIn())
+	}
+
+	if ctx.LoopForI() != nil {
+		l.Visit(ctx.LoopForI())
 	}
 
 	var builder = NewStringBuilder()
@@ -474,17 +548,28 @@ func (l *ClangPlus) VisitReturn(ctx *ironlang.ReturnContext) {
 			}
 		}
 
-		if v, ok := ctx.GetParent().GetParent().GetParent().(*ironlang.AnonimousFuncContext); ok {
+		if v, ok := ctx.GetParent().GetParent().(*ironlang.FunctionContext); ok {
 			if v.DataTypes() != nil {
 				l.StrBuilder.WriteString("return ")
 			}
 		}
+
 	} else {
 		l.StrBuilder.WriteString("return ")
 	}
 
 	if ctx.MathExpression() != nil {
 		l.Visit(ctx.MathExpression())
+		l.StrBuilder.WriteString(";\n")
+	}
+
+	if ctx.RelExpression() != nil {
+		l.Visit(ctx.RelExpression())
+		l.StrBuilder.WriteString(";\n")
+	}
+
+	if ctx.IDENTIFIER() != nil {
+		l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
 		l.StrBuilder.WriteString(";\n")
 	}
 }
@@ -727,6 +812,11 @@ func (l *ClangPlus) VisitRelExpression(ctx *ironlang.RelExpressionContext) {
 		l.StrBuilder.WriteString(")")
 	}
 
+	if ctx.IDENTIFIER() != nil {
+		l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
+		l.StrBuilder.WriteString(" ")
+	}
+
 	if ctx.Atom() != nil {
 		l.Visit(ctx.Atom())
 		l.StrBuilder.WriteString(" ")
@@ -793,6 +883,16 @@ func (l *ClangPlus) VisitMathExpression(ctx *ironlang.MathExpressionContext) {
 		l.StrBuilder.WriteString(")")
 	}
 
+	if ctx.IDENTIFIER() != nil {
+		l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
+		if ctx.PLUS_PLUS() != nil {
+			l.StrBuilder.WriteString(ctx.PLUS_PLUS().GetText())
+		}
+		if ctx.MINUS_MINUS() != nil {
+			l.StrBuilder.WriteString(ctx.MINUS_MINUS().GetText())
+		}
+	}
+
 	if ctx.Atom() != nil {
 		l.Visit(ctx.Atom())
 	}
@@ -831,8 +931,6 @@ func (l *ClangPlus) VisitAtom(ctx *ironlang.AtomContext) {
 		l.StrBuilder.WriteString(ctx.INT_NUMBER().GetText())
 	} else if ctx.REAL_NUMBER() != nil {
 		l.StrBuilder.WriteString(ctx.REAL_NUMBER().GetText())
-	} else {
-		l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
 	}
 
 }
