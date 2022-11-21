@@ -101,6 +101,14 @@ OR:
     'or'
 ;
 
+IN:
+    'in'
+;
+
+FOR:
+    'for'
+;
+
 NOT:
     'not'
 ;
@@ -119,6 +127,10 @@ MUT:
 
 ELSE:
     'else'
+;
+
+WHILE:
+    'while'
 ;
 
 FOR_EACH:
@@ -219,7 +231,28 @@ ifExpression
    : IF relExpression ifScope (elseExpression | elseIfExpression )?
 ;
 
-bodyScope: variable | assignment | ifExpression | function | funcCall | scope | println | forEach ;
+loopWhile
+    : WHILE relExpression L_CURLY (bodyScope)* R_CURLY
+;
+
+
+loopForIn
+    : FOR IDENTIFIER IN (IDENTIFIER |  L_PAREN INT_NUMBER '..' INT_NUMBER R_PAREN) L_CURLY (bodyScope)* R_CURLY
+;
+//for element in a {
+
+bodyScope
+    : variable
+    | assignment
+    | ifExpression
+    | function
+    | funcCall
+    | scope
+    | println
+    | forEach
+    | loopWhile
+    | loopForIn
+;
 
 println: PRINT_LN L_PAREN (variable | IDENTIFIER) R_PAREN;
 

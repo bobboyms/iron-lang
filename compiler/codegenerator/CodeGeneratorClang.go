@@ -6,6 +6,7 @@ import (
 	"iron-lang/compiler/ironlang"
 	"iron-lang/compiler/scopes"
 	"iron-lang/compiler/utils"
+	"strconv"
 	"strings"
 )
 
@@ -100,6 +101,10 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitElseExpression(val)
 	case *ironlang.ElseIfExpressionContext:
 		l.VisitElseIfExpression(val)
+	case *ironlang.LoopWhileContext:
+		l.VisitLoopWhile(val)
+	case *ironlang.LoopForInContext:
+		l.VisitLoopForIn(val)
 
 	default:
 		panic("Unknown context")
@@ -123,6 +128,63 @@ func (l *ClangPlus) VisitProgram(ctx *ironlang.ProgramContext) {
 	l.InitForEachFunction()
 	l.Visit(ctx.FuncMain())
 	l.StrBuilder.WriteString("\n")
+}
+
+func (l *ClangPlus) VisitLoopForIn(ctx *ironlang.LoopForInContext) {
+
+	if ctx.L_PAREN() != nil {
+		vectorName := fmt.Sprintf("vector_s%v_m%v", l.ScopeId, l.MapId)
+		init, _ := strconv.ParseInt(ctx.INT_NUMBER(0).GetText(), 0, 32)
+		last, _ := strconv.ParseInt(ctx.INT_NUMBER(1).GetText(), 0, 32)
+
+		l.StrBuilder.WriteString("std::vector<int> " + vectorName)
+		l.StrBuilder.WriteString(" = ")
+		l.StrBuilder.WriteString("{")
+		for i := init; i <= last; i++ {
+			l.StrBuilder.WriteString(strconv.FormatInt(i, 10) + ",")
+		}
+		l.StrBuilder.WriteString("};\n")
+
+		l.StrBuilder.WriteString(ctx.FOR().GetText())
+		l.StrBuilder.WriteString(" (")
+		l.StrBuilder.WriteString("auto ")
+		l.StrBuilder.WriteString(ctx.IDENTIFIER(0).GetText())
+		l.StrBuilder.WriteString(" : ")
+		l.StrBuilder.WriteString(vectorName)
+		l.StrBuilder.WriteString(") ")
+		l.StrBuilder.WriteString("{\n")
+		for _, bodyScope := range ctx.AllBodyScope() {
+			l.Visit(bodyScope)
+		}
+		l.StrBuilder.WriteString("}\n")
+
+	} else {
+		l.StrBuilder.WriteString(ctx.FOR().GetText())
+		l.StrBuilder.WriteString(" (")
+		l.StrBuilder.WriteString("auto ")
+		l.StrBuilder.WriteString(ctx.IDENTIFIER(0).GetText())
+		l.StrBuilder.WriteString(" : ")
+		l.StrBuilder.WriteString(ctx.IDENTIFIER(1).GetText())
+		l.StrBuilder.WriteString(") ")
+		l.StrBuilder.WriteString("{\n")
+		for _, bodyScope := range ctx.AllBodyScope() {
+			l.Visit(bodyScope)
+		}
+		l.StrBuilder.WriteString("}\n")
+	}
+
+}
+
+func (l *ClangPlus) VisitLoopWhile(ctx *ironlang.LoopWhileContext) {
+	l.StrBuilder.WriteString(ctx.WHILE().GetText())
+	l.StrBuilder.WriteString(" (")
+	l.Visit(ctx.RelExpression())
+	l.StrBuilder.WriteString(") ")
+	l.StrBuilder.WriteString("{\n")
+	for _, bodyScope := range ctx.AllBodyScope() {
+		l.Visit(bodyScope)
+	}
+	l.StrBuilder.WriteString("}\n")
 }
 
 func (l *ClangPlus) VisitElseIfExpression(ctx *ironlang.ElseIfExpressionContext) {
@@ -341,6 +403,14 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 
 	if ctx.IfExpression() != nil {
 		l.Visit(ctx.IfExpression())
+	}
+
+	if ctx.LoopWhile() != nil {
+		l.Visit(ctx.LoopWhile())
+	}
+
+	if ctx.LoopForIn() != nil {
+		l.Visit(ctx.LoopForIn())
 	}
 
 	var builder = NewStringBuilder()

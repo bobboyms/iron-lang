@@ -12,14 +12,14 @@ fn main() {
 
     if true {
        int[1,2,3,4].forEach((v int) -> {
-            let x = 2 * v
+          let x = 2 * v
        })
     }
 
     if n {
-      let x = 20 + func()
+        let x = 20 + func()
     } else {
-      let x = func()
+        let x = func()
     }
 
     if false {
@@ -28,6 +28,20 @@ fn main() {
         let x = func()
     } else {
         func()
+    }
+
+    mut let b = 0
+    while b < 10 {
+        b = b + 1
+    }
+
+    let values = int[1,2,3,4,5]
+    for v in values {
+        let x = v
+    }
+
+    for v in (1..10) {
+        let x = v
     }
 
 }
