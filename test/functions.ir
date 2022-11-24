@@ -1,6 +1,13 @@
 fn main() {
 
-    let nada = () -> {2+2}
+    let nad1 = () -> 2+2
+    let nad2 = () -> {
+        if true {
+            let bv = () int -> 2
+        }
+
+        let bv = () int -> 2
+    }
 
     let func1 = () int -> 2 + 2
     let func2 = (x int, y float) int -> (x + y) * 3
@@ -27,7 +34,7 @@ fn main() {
     fn test1() int {
         fn test2() int {
             fn test3() int {
-                3
+                return 3
             }
             return test3()
         }

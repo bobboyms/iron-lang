@@ -26,7 +26,7 @@ func (s *SemanticAnalysis) Visit(tree antlr.ParseTree) {
 		s.VisitProgram(val)
 	case *ironlang.FuncMainContext:
 		s.VisitFuncMain(val)
-	case *ironlang.ScopeContext:
+	case *ironlang.FuncScopeContext:
 		s.VisitScope(val)
 	case *ironlang.MathExpressionContext:
 		s.VisitMathExpression(val)
@@ -82,7 +82,7 @@ func (s *SemanticAnalysis) VisitProgram(ctx *ironlang.ProgramContext) {
 }
 
 func (s *SemanticAnalysis) VisitFuncMain(ctx *ironlang.FuncMainContext) {
-	s.Visit(ctx.Scope())
+	s.Visit(ctx.FuncScope())
 }
 
 func (s *SemanticAnalysis) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
@@ -103,7 +103,7 @@ func (s *SemanticAnalysis) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 	//}
 }
 
-func (s *SemanticAnalysis) VisitScope(ctx *ironlang.ScopeContext) {
+func (s *SemanticAnalysis) VisitScope(ctx *ironlang.FuncScopeContext) {
 
 	s.ScopesManager.CreateNewScope(utils.GetMD5Hash(ctx.GetText()))
 
@@ -151,21 +151,6 @@ func (s *SemanticAnalysis) VisitDataTypes(ctx *ironlang.DataTypesContext) {
 }
 
 func (s *SemanticAnalysis) VisitAssignment(ctx *ironlang.AssignmentContext) {
-
-	if ctx.IDENTIFIER() != nil {
-		identifier := ctx.IDENTIFIER()
-		if s.ScopesManager.NoHasSymbolTableHigherScopes(identifier.GetText()) {
-			s.insertNewError(identifier, errors.VariableNotDeclared)
-		}
-	} else {
-		if ctx.Variable() != nil {
-			s.Visit(ctx.Variable())
-		}
-	}
-
-	if ctx.MathExpression() != nil {
-		s.Visit(ctx.MathExpression())
-	}
 
 }
 

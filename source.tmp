@@ -1,0 +1,29 @@
+#include <iostream>
+#include <vector>
+#include <numeric>
+
+template <typename TTX>
+void arrForEach(void (*func)(TTX), TTX val) {
+func(val);
+}
+template <typename TT>
+std::vector<TT> vector_slicing(std::vector<TT> &arr, int X, int Y)
+{
+auto start = arr.begin() + X;
+auto end = arr.begin() + Y + 1;
+std::vector<TT> result(Y - X + 1);
+copy(start, end, result.begin());
+return result;
+}
+int main() {
+std::vector<int> x = {1,2,3,4,5,6};
+auto slice_s1_m1 = vector_slicing<int>(x, 2,3);
+std::transform(slice_s1_m1.begin(), slice_s1_m1.end(), slice_s1_m1.begin(),[](int v)-> int {
+return v * 3;
+});
+auto map_s1_m2 = slice_s1_m1;
+auto nn = map_s1_m2;
+std::cout << "Hello world!";
+return 0;
+}
+

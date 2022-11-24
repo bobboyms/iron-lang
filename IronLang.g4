@@ -201,11 +201,11 @@ program
 
 
 funcMain
-    : FN 'main'L_PAREN R_PAREN scope
+    : FN 'main'L_PAREN R_PAREN funcScope
 ;
 
 function
-    : FN IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? scope
+    : FN IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? funcScope
 ;
 
 funcType
@@ -213,10 +213,10 @@ funcType
 ;
 
 return
-    : (RETURN)? mathExpression | relExpression | IDENTIFIER
+    : (RETURN)? (mathExpression | relExpression | IDENTIFIER)
 ;
 
-scope:
+funcScope:
     L_CURLY (bodyScope)* (return)? R_CURLY
 ;
 
@@ -224,12 +224,17 @@ funcCall
     : IDENTIFIER L_PAREN (funcCallArg (COMMA funcCallArg)*)? R_PAREN
 ;
 
-funcCallArg: mathExpression | funcCall | anonimousFunc;
+funcCallArg: mathExpression | funcCall | anonimousFuncWithReturn | anonimousFuncNoReturn;
 
 //() int -> {}
-anonimousFunc
-    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? ARROW L_CURLY (bodyScope)? (return)? R_CURLY
-    | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? ARROW (bodyScope)? (return)?
+anonimousFuncWithReturn
+    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN dataTypes ARROW L_CURLY (bodyScope)* return R_CURLY
+    | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN dataTypes ARROW (bodyScope)? return
+;
+
+anonimousFuncNoReturn
+    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN ARROW L_CURLY (bodyScope)* R_CURLY
+    | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN ARROW (bodyScope)*
 ;
 
 ifScope:
@@ -261,7 +266,7 @@ loopWhile
 ;
 
 loopForIn
-    : FOR IDENTIFIER IN (IDENTIFIER |  L_PAREN INT_NUMBER '..' INT_NUMBER R_PAREN) L_CURLY (loopScope)* R_CURLY
+    : FOR IDENTIFIER IN (slice | IDENTIFIER |  L_PAREN INT_NUMBER '..' INT_NUMBER R_PAREN) L_CURLY (loopScope)* R_CURLY
 ;
 
 loopForI
@@ -274,13 +279,14 @@ bodyScope
     | ifExpression
     | function
     | funcCall
-    | scope
     | println
     | forEach
     | loopWhile
     | loopDoWhile
     | loopForIn
     | loopForI
+    | mathExpression
+    | mapFilterReduce
 ;
 
 println: PRINT_LN L_PAREN (variable | IDENTIFIER) R_PAREN;
@@ -294,27 +300,25 @@ funcArg: (MUT)? IDENTIFIER dataTypes | funcType;
 dataTypes:  TYPE_INT | TYPE_FLOAT;
 
 assignment
-    : variable EQ anonimousFunc
-    | variable EQ mathExpression
-    | IDENTIFIER EQ mathExpression
-    | variable EQ relExpression
-    | IDENTIFIER EQ relExpression
-    | variable EQ array
-    | IDENTIFIER EQ array
-    | variable EQ mapFilterReduce
+    : variable EQ (slice | array | anonimousFuncWithReturn | anonimousFuncNoReturn | mathExpression | relExpression | mapFilterReduce)
 ;
 
 array
     : dataTypes L_BRACKET ((INT_NUMBER | REAL_NUMBER) (COMMA (INT_NUMBER | REAL_NUMBER))*)* R_BRACKET
 ;
 
+slice
+    : IDENTIFIER L_BRACKET INT_NUMBER ':' INT_NUMBER R_BRACKET
+;
+
 forEach
-    : IDENTIFIER DOT FOR_EACH L_PAREN (anonimousFunc) R_PAREN
-    | array DOT FOR_EACH L_PAREN (anonimousFunc | IDENTIFIER) R_PAREN
+    : IDENTIFIER DOT FOR_EACH L_PAREN (anonimousFuncNoReturn) R_PAREN
+    | array DOT FOR_EACH L_PAREN (anonimousFuncNoReturn | IDENTIFIER) R_PAREN
 ;
 
 mapFilterReduce
     : mapFilterReduce DOT mapFilterReduce
+    | slice
     | IDENTIFIER
     | map
     | filter
@@ -323,15 +327,15 @@ mapFilterReduce
 ;
 
 map
-    : MAP L_PAREN (anonimousFunc) R_PAREN
+    : MAP L_PAREN (anonimousFuncWithReturn) R_PAREN
 ;
 
 filter
-    : FILTER L_PAREN (anonimousFunc) R_PAREN
+    : FILTER L_PAREN (anonimousFuncWithReturn) R_PAREN
 ;
 
 reduce
-    : REDUCE L_PAREN (anonimousFunc) R_PAREN
+    : REDUCE L_PAREN (anonimousFuncWithReturn) R_PAREN
 ;
 
 relExpression

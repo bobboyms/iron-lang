@@ -182,3 +182,34 @@ func TestCodeGeneratorControlFlow(t *testing.T) {
 	RunMake()
 
 }
+
+func TestCodeGeneratorSlice(t *testing.T) {
+
+	f, err := os.Open("slice.ir")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+
+		}
+	}(f)
+
+	scanner := bufio.NewScanner(f)
+
+	builder := strings.Builder{}
+	for scanner.Scan() {
+		builder.WriteString(scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	Compiler(builder.String())
+	RunMake()
+
+}

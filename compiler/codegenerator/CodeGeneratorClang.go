@@ -43,13 +43,25 @@ func (l *ClangPlus) InitForEachFunction() {
 	l.StrFuncBuilder.WriteString("}\n")
 }
 
+func (l *ClangPlus) InitVectorSlicing() {
+	l.StrFuncBuilder.WriteString("template <typename TT>\n")
+	l.StrFuncBuilder.WriteString("std::vector<TT> vector_slicing(std::vector<TT> &arr, int X, int Y)\n")
+	l.StrFuncBuilder.WriteString("{\n")
+	l.StrFuncBuilder.WriteString("auto start = arr.begin() + X;\n")
+	l.StrFuncBuilder.WriteString("auto end = arr.begin() + Y + 1;\n")
+	l.StrFuncBuilder.WriteString("std::vector<TT> result(Y - X + 1);\n")
+	l.StrFuncBuilder.WriteString("copy(start, end, result.begin());\n")
+	l.StrFuncBuilder.WriteString("return result;\n")
+	l.StrFuncBuilder.WriteString("}\n")
+}
+
 func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 	switch val := tree.(type) {
 	case *ironlang.ProgramContext:
 		l.VisitProgram(val)
 	case *ironlang.FuncMainContext:
 		l.VisitFuncMain(val)
-	case *ironlang.ScopeContext:
+	case *ironlang.FuncScopeContext:
 		l.VisitScope(val)
 	case *ironlang.MathExpressionContext:
 		l.VisitMathExpression(val)
@@ -71,8 +83,10 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitFuncCallArg(val)
 	case *ironlang.BodyScopeContext:
 		l.VisitBodyScope(val)
-	case *ironlang.AnonimousFuncContext:
-		l.VisitAnonymousFunc(val)
+	case *ironlang.AnonimousFuncWithReturnContext:
+		l.VisitAnonymousFuncWithReturn(val)
+	case *ironlang.AnonimousFuncNoReturnContext:
+		l.VisitAnonymousFuncNoReturn(val)
 	case *ironlang.FunctionArgsContext:
 		l.VisitFunctionArgs(val)
 	case *ironlang.FuncArgContext:
@@ -111,6 +125,8 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitLoopDoWhile(val)
 	case *ironlang.LoopForIContext:
 		l.VisitLoopForI(val)
+	case *ironlang.SliceContext:
+		l.VisitSlice(val)
 
 	default:
 		panic("Unknown context")
@@ -132,6 +148,7 @@ func (l *ClangPlus) VisitProgram(ctx *ironlang.ProgramContext) {
 	l.StrImportBuilder.WriteString("#include <vector>\n")
 	l.StrImportBuilder.WriteString("#include <numeric>\n")
 	l.InitForEachFunction()
+	l.InitVectorSlicing()
 	l.Visit(ctx.FuncMain())
 	l.StrBuilder.WriteString("\n")
 }
@@ -141,7 +158,6 @@ func (l *ClangPlus) VisitLoopForI(ctx *ironlang.LoopForIContext) {
 	l.StrBuilder.WriteString(ctx.FOR().GetText())
 	l.StrBuilder.WriteString(" (")
 	l.Visit(ctx.Assignment())
-	//l.StrBuilder.WriteString(";")
 	l.Visit(ctx.RelExpression())
 	l.StrBuilder.WriteString(";")
 	l.Visit(ctx.MathExpression())
@@ -224,7 +240,24 @@ func (l *ClangPlus) VisitLoopForIn(ctx *ironlang.LoopForInContext) {
 		}
 		l.StrBuilder.WriteString("}\n")
 
-	} else {
+	}
+
+	if ctx.Slice() != nil {
+		l.StrBuilder.WriteString(ctx.FOR().GetText())
+		l.StrBuilder.WriteString(" (")
+		l.StrBuilder.WriteString("auto ")
+		l.StrBuilder.WriteString(ctx.IDENTIFIER(0).GetText())
+		l.StrBuilder.WriteString(" : ")
+		l.Visit(ctx.Slice())
+		l.StrBuilder.WriteString(") ")
+		l.StrBuilder.WriteString("{\n")
+		for _, loopScope := range ctx.AllLoopScope() {
+			l.Visit(loopScope)
+		}
+		l.StrBuilder.WriteString("}\n")
+	}
+
+	if ctx.IDENTIFIER(1) != nil {
 		l.StrBuilder.WriteString(ctx.FOR().GetText())
 		l.StrBuilder.WriteString(" (")
 		l.StrBuilder.WriteString("auto ")
@@ -341,13 +374,13 @@ func (l *ClangPlus) VisitFunctionArgs(ctx *ironlang.FunctionArgsContext) {
 
 func (l *ClangPlus) VisitMap(ctx *ironlang.MapContext) {
 	l.StrBuilder.WriteString("std::transform(" + l.LastIdentifier + ".begin(), " + l.LastIdentifier + ".end(), " + l.LastIdentifier + ".begin(),")
-	l.Visit(ctx.AnonimousFunc())
+	l.Visit(ctx.AnonimousFuncWithReturn())
 	l.StrBuilder.WriteString(");\n")
 }
 
 func (l *ClangPlus) VisitFilter(ctx *ironlang.FilterContext) {
 	l.StrBuilder.WriteString("std::copy_if(" + l.LastIdentifier + ".begin(), " + l.LastIdentifier + ".end(), std::back_inserter(" + l.VectorTempName + "),")
-	l.Visit(ctx.AnonimousFunc())
+	l.Visit(ctx.AnonimousFuncWithReturn())
 	l.StrBuilder.WriteString(");\n")
 }
 
@@ -355,7 +388,7 @@ func (l *ClangPlus) VisitReduce(ctx *ironlang.ReduceContext) {
 	reduceResultTempName := fmt.Sprintf("reduce_result_s%v_m%v", l.ScopeId, l.MapId)
 	l.StrBuilder.WriteString("auto " + reduceResultTempName + " = ")
 	l.StrBuilder.WriteString("std::reduce(" + l.LastIdentifier + ".begin(), " + l.LastIdentifier + ".end(), 0,")
-	l.Visit(ctx.AnonimousFunc())
+	l.Visit(ctx.AnonimousFuncWithReturn())
 	l.StrBuilder.WriteString(");\n")
 	l.LastIdentifier = reduceResultTempName
 }
@@ -385,11 +418,20 @@ func (l *ClangPlus) VisitMapFilterReduce(ctx *ironlang.MapFilterReduceContext) {
 		l.LastIdentifier = ctx.IDENTIFIER().GetText()
 	}
 
+	if ctx.Slice() != nil {
+		l.MapId++
+		sliceTempName := fmt.Sprintf("slice_s%v_m%v", l.ScopeId, l.MapId)
+		l.StrBuilder.WriteString("auto " + sliceTempName + " = " + l.LastIdentifier)
+		l.Visit(ctx.Slice())
+		l.StrBuilder.WriteString(";\n")
+		l.LastIdentifier = sliceTempName
+	}
+
 	if ctx.Map() != nil {
 		l.MapId++
+		l.Visit(ctx.Map())
 		mapTempName := fmt.Sprintf("map_s%v_m%v", l.ScopeId, l.MapId)
 		l.StrBuilder.WriteString("auto " + mapTempName + " = " + l.LastIdentifier + ";\n")
-		l.Visit(ctx.Map())
 		l.LastIdentifier = mapTempName
 	}
 	if ctx.Filter() != nil {
@@ -451,7 +493,7 @@ func (l *ClangPlus) VisitFuncArg(ctx *ironlang.FuncArgContext) {
 func (l *ClangPlus) VisitFuncMain(ctx *ironlang.FuncMainContext) {
 	l.StrBuilder.WriteString("int main() ")
 	l.StrBuilder.WriteString("{\n")
-	l.Visit(ctx.Scope())
+	l.Visit(ctx.FuncScope())
 	l.StrBuilder.WriteString("std::cout << \"Hello world!\";\n")
 	l.StrBuilder.WriteString("return 0;\n")
 	l.StrBuilder.WriteString("}\n")
@@ -487,6 +529,10 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 		l.Visit(ctx.LoopForI())
 	}
 
+	if ctx.MathExpression() != nil {
+		l.Visit(ctx.MathExpression())
+	}
+
 	var builder = NewStringBuilder()
 	if ctx.Function() != nil {
 		c := NewClang(l.ScopeLog)
@@ -507,13 +553,9 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 		l.Visit(ctx.ForEach())
 	}
 
-	if ctx.Scope() != nil {
-		l.Visit(ctx.Scope())
-	}
-
 }
 
-func (l *ClangPlus) VisitScope(ctx *ironlang.ScopeContext) {
+func (l *ClangPlus) VisitScope(ctx *ironlang.FuncScopeContext) {
 
 	l.EnterScope()
 	l.ScopeLog.EnterScope(utils.GetMD5Hash(ctx.GetText()))
@@ -541,22 +583,24 @@ func (l *ClangPlus) ExitScope() {
 
 func (l *ClangPlus) VisitReturn(ctx *ironlang.ReturnContext) {
 
-	if ctx.RETURN() == nil {
-		if v, ok := ctx.GetParent().(*ironlang.AnonimousFuncContext); ok {
-			if v.DataTypes() != nil {
-				l.StrBuilder.WriteString("return ")
-			}
-		}
+	//if ctx.RETURN() == nil {
+	//	if v, ok := ctx.GetParent().(*ironlang.AnonimousFuncContext); ok {
+	//		if v.DataTypes() != nil {
+	//			l.StrBuilder.WriteString("return ")
+	//		}
+	//	}
+	//
+	//	if v, ok := ctx.GetParent().GetParent().(*ironlang.FunctionContext); ok {
+	//		if v.DataTypes() != nil {
+	//			l.StrBuilder.WriteString("return ")
+	//		}
+	//	}
+	//
+	//} else {
+	//
+	//}
 
-		if v, ok := ctx.GetParent().GetParent().(*ironlang.FunctionContext); ok {
-			if v.DataTypes() != nil {
-				l.StrBuilder.WriteString("return ")
-			}
-		}
-
-	} else {
-		l.StrBuilder.WriteString("return ")
-	}
+	l.StrBuilder.WriteString("return ")
 
 	if ctx.MathExpression() != nil {
 		l.Visit(ctx.MathExpression())
@@ -591,7 +635,32 @@ func (l *ClangPlus) VisitFuncCall(ctx *ironlang.FuncCallContext) {
 
 }
 
-func (l *ClangPlus) VisitAnonymousFunc(ctx *ironlang.AnonimousFuncContext) {
+func (l *ClangPlus) VisitAnonymousFuncNoReturn(ctx *ironlang.AnonimousFuncNoReturnContext) {
+	l.StrBuilder.WriteString("[]")
+	if ctx.L_PAREN() != nil {
+		l.StrBuilder.WriteString("(")
+	}
+
+	for _, funcArg := range ctx.AllFunctionArgs() {
+		l.Visit(funcArg)
+	}
+
+	if ctx.R_PAREN() != nil {
+		l.StrBuilder.WriteString(")")
+	}
+	l.StrBuilder.WriteString("-> ")
+	l.StrBuilder.WriteString("void ")
+	l.StrBuilder.WriteString("{\n")
+
+	for _, bodyScope := range ctx.AllBodyScope() {
+		l.Visit(bodyScope)
+		l.StrBuilder.WriteString(";\n")
+	}
+
+	l.StrBuilder.WriteString("}")
+}
+
+func (l *ClangPlus) VisitAnonymousFuncWithReturn(ctx *ironlang.AnonimousFuncWithReturnContext) {
 
 	l.StrBuilder.WriteString("[]")
 	if ctx.L_PAREN() != nil {
@@ -609,14 +678,12 @@ func (l *ClangPlus) VisitAnonymousFunc(ctx *ironlang.AnonimousFuncContext) {
 	if ctx.DataTypes() != nil {
 		l.StrBuilder.WriteString("-> ")
 		l.Visit(ctx.DataTypes())
-	} else {
-		l.StrBuilder.WriteString("-> ")
-		l.StrBuilder.WriteString("void ")
 	}
 
 	l.StrBuilder.WriteString("{\n")
-	if ctx.BodyScope() != nil {
-		l.Visit(ctx.BodyScope())
+
+	for _, bodyScope := range ctx.AllBodyScope() {
+		l.Visit(bodyScope)
 	}
 
 	if ctx.Return() != nil {
@@ -631,8 +698,12 @@ func (l *ClangPlus) VisitFuncCallArg(ctx *ironlang.FuncCallArgContext) {
 		l.Visit(ctx.MathExpression())
 	}
 
-	if ctx.AnonimousFunc() != nil {
-		l.Visit(ctx.AnonimousFunc())
+	if ctx.AnonimousFuncWithReturn() != nil {
+		l.Visit(ctx.AnonimousFuncWithReturn())
+	}
+
+	if ctx.AnonimousFuncNoReturn() != nil {
+		l.Visit(ctx.AnonimousFuncNoReturn())
 	}
 
 	if ctx.FuncCall() != nil {
@@ -653,7 +724,7 @@ func (l *ClangPlus) VisitFunction(ctx *ironlang.FunctionContext) {
 	l.StrBuilder.WriteString("(")
 	l.StrBuilder.WriteString(") ")
 	l.StrBuilder.WriteString("{\n")
-	l.Visit(ctx.Scope())
+	l.Visit(ctx.FuncScope())
 	l.StrBuilder.WriteString("};\n")
 }
 
@@ -715,10 +786,25 @@ func (l *ClangPlus) VisitDataTypes(ctx *ironlang.DataTypesContext) {
 	}
 }
 
+func (l *ClangPlus) VisitSlice(ctx *ironlang.SliceContext) {
+	identifier := ctx.IDENTIFIER().GetText()
+	start := ctx.INT_NUMBER(0).GetText()
+	end := ctx.INT_NUMBER(1).GetText()
+	l.StrBuilder.WriteString("vector_slicing<int>(" + identifier + ", " + start + "," + end + ")")
+}
+
 func (l *ClangPlus) VisitAssignment(ctx *ironlang.AssignmentContext) {
 
-	if ctx.IDENTIFIER() != nil {
-		l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText() + " = ")
+	//if ctx.IDENTIFIER() != nil {
+	//	l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText() + " = ")
+	//}
+
+	if ctx.Slice() != nil {
+		l.Visit(ctx.Variable())
+		l.StrBuilder.WriteString(" = ")
+		l.Visit(ctx.Slice())
+		l.StrBuilder.WriteString(";\n")
+		return
 	}
 
 	if ctx.MapFilterReduce() == nil {
@@ -728,8 +814,12 @@ func (l *ClangPlus) VisitAssignment(ctx *ironlang.AssignmentContext) {
 		}
 	}
 
-	if ctx.AnonimousFunc() != nil {
-		l.Visit(ctx.AnonimousFunc())
+	if ctx.AnonimousFuncWithReturn() != nil {
+		l.Visit(ctx.AnonimousFuncWithReturn())
+	}
+
+	if ctx.AnonimousFuncNoReturn() != nil {
+		l.Visit(ctx.AnonimousFuncNoReturn())
 	}
 
 	if ctx.MathExpression() != nil {
@@ -791,8 +881,8 @@ func (l *ClangPlus) VisitForEach(ctx *ironlang.ForEachContext) {
 
 	l.StrBuilder.WriteString("for (auto localVar : " + identifier + ") {\n")
 	l.StrBuilder.WriteString("arrForEach<" + dataType + ">(")
-	if ctx.AnonimousFunc() != nil {
-		l.Visit(ctx.AnonimousFunc())
+	if ctx.AnonimousFuncNoReturn() != nil {
+		l.Visit(ctx.AnonimousFuncNoReturn())
 	}
 	l.StrBuilder.WriteString(",localVar);\n")
 	l.StrBuilder.WriteString("};\n")
