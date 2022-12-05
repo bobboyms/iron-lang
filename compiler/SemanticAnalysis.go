@@ -5,7 +5,6 @@ import (
 	"iron-lang/compiler/errors"
 	"iron-lang/compiler/ironlang"
 	"iron-lang/compiler/scopes"
-	"iron-lang/compiler/utils"
 )
 
 type SemanticAnalysis struct {
@@ -21,41 +20,39 @@ func NewSemanticAnalysis(scopesManager *scopes.ScopeManager, errorListener *erro
 }
 
 func (s *SemanticAnalysis) Visit(tree antlr.ParseTree) {
-	switch val := tree.(type) {
-	case *ironlang.ProgramContext:
-		s.VisitProgram(val)
-	case *ironlang.FuncMainContext:
-		s.VisitFuncMain(val)
-	case *ironlang.FuncScopeContext:
-		s.VisitScope(val)
-	case *ironlang.MathExpressionContext:
-		s.VisitMathExpression(val)
-	case *ironlang.AssignmentContext:
-		s.VisitAssignment(val)
-	case *ironlang.AtomContext:
-		s.VisitAtom(val)
-	case *ironlang.VariableContext:
-		s.VisitVariable(val)
-	case *ironlang.DataTypesContext:
-		s.VisitDataTypes(val)
-	case *ironlang.FunctionContext:
-		s.VisitFunction(val)
-	case *ironlang.ReturnContext:
-		s.VisitReturn(val)
-	case *ironlang.FuncCallContext:
-		s.VisitFuncCall(val)
-	case *ironlang.FuncCallArgContext:
-		s.VisitFuncCallArg(val)
-	case *ironlang.BodyScopeContext:
-		s.VisitBodyScope(val)
-	default:
-		panic("Unknown context")
-	}
+	//switch val := tree.(type) {
+	//case *ironlang.ProgramContext:
+	//	s.VisitProgram(val)
+	//case *ironlang.FuncMainContext:
+	//	s.VisitFuncMain(val)
+	//case *ironlang.MathExpressionContext:
+	//	s.VisitMathExpression(val)
+	//case *ironlang.AssignmentContext:
+	//	s.VisitAssignment(val)
+	//case *ironlang.AtomContext:
+	//	s.VisitAtom(val)
+	//case *ironlang.VariableContext:
+	//	s.VisitVariable(val)
+	//case *ironlang.DataTypesContext:
+	//	s.VisitDataTypes(val)
+	//case *ironlang.FunctionContext:
+	//	s.VisitFunction(val)
+	//case *ironlang.ReturnContext:
+	//	s.VisitReturn(val)
+	//case *ironlang.FuncCallContext:
+	//	s.VisitFuncCall(val)
+	//case *ironlang.FuncCallArgContext:
+	//	s.VisitFuncCallArg(val)
+	//case *ironlang.BodyScopeContext:
+	//	s.VisitBodyScope(val)
+	//default:
+	//	panic("Unknown context")
+	//}
 }
 
-func (s *SemanticAnalysis) VisitFunction(ctx *ironlang.FunctionContext) {
-
-}
+//func (s *SemanticAnalysis) VisitFunction(ctx *ironlang.FunctionContext) {
+//
+//}
 
 func (s *SemanticAnalysis) VisitReturn(ctx *ironlang.ReturnContext) {
 }
@@ -82,7 +79,6 @@ func (s *SemanticAnalysis) VisitProgram(ctx *ironlang.ProgramContext) {
 }
 
 func (s *SemanticAnalysis) VisitFuncMain(ctx *ironlang.FuncMainContext) {
-	s.Visit(ctx.FuncScope())
 }
 
 func (s *SemanticAnalysis) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
@@ -103,20 +99,17 @@ func (s *SemanticAnalysis) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 	//}
 }
 
-func (s *SemanticAnalysis) VisitScope(ctx *ironlang.FuncScopeContext) {
-
-	s.ScopesManager.CreateNewScope(utils.GetMD5Hash(ctx.GetText()))
-
-	for _, body := range ctx.AllBodyScope() {
-		s.Visit(body)
-	}
-
-	//if ctx.Return() != nil {
-	//	s.Visit(ctx.Return())
-	//}
-
-	s.ScopesManager.DeleteActualScope()
-}
+//func (s *SemanticAnalysis) VisitScope(ctx *ironlang.FuncScopeContext) {
+//
+//	s.ScopesManager.CreateNewScope(utils.GetMD5Hash(ctx.GetText()))
+//
+//
+//	//if ctx.Return() != nil {
+//	//	s.Visit(ctx.Return())
+//	//}
+//
+//	s.ScopesManager.DeleteActualScope()
+//}
 
 func (s *SemanticAnalysis) VisitVariable(ctx *ironlang.VariableContext) {
 
@@ -155,7 +148,6 @@ func (s *SemanticAnalysis) VisitAssignment(ctx *ironlang.AssignmentContext) {
 }
 
 func (s *SemanticAnalysis) VisitMathExpression(ctx *ironlang.MathExpressionContext) {
-	println("Math")
 	if ctx.Atom() != nil {
 		s.Visit(ctx.Atom())
 	}

@@ -6,7 +6,7 @@ llvm:
 	rm source.ll
 	rm source.cpp
 	clang++ main.o -o main
-	./main
+	#./main
 	rm main.o
 	rm main
 

@@ -5,7 +5,9 @@ fn main() {
     })
 
     let arr = int[1,2,3,4]
-    arr.forEach((val int) -> {})
+    arr.forEach((val int) -> {
+        let x = val * 2
+    })
 
     let r1 = arr.map((val int) int -> {
             return val * 2

@@ -1,5 +1,7 @@
 grammar IronLang;
 
+
+
 //LEXICAL SYMBOLS
 DOT:
     '.'
@@ -187,6 +189,33 @@ TYPE_BOOLEAN:
     'true' | 'false'
 ;
 
+MULT_LINE_COMMENT
+    : '/*' .*? '*/' -> channel(HIDDEN)
+;
+//
+//fragment ESC_NEWLINE: '\\' '\n';
+//fragment OCT_DIGIT: [0-7];
+//fragment QUOTE_ESCAPE: '\\' ['"];
+//fragment HEX_DIGIT: [0-9a-fA-F];
+//fragment COMMON_ESCAPE: '\\' [nrt\\0];
+//fragment ASCII_ESCAPE: '\\x' OCT_DIGIT HEX_DIGIT | COMMON_ESCAPE;
+//fragment UNICODE_ESCAPE
+//   : '\\u{' HEX_DIGIT HEX_DIGIT? HEX_DIGIT? HEX_DIGIT? HEX_DIGIT? HEX_DIGIT? '}'
+//;
+//
+//
+//
+//STRING_LITERAL
+//   : '"'
+//   (
+//      ~["]
+//      | QUOTE_ESCAPE
+//      | ASCII_ESCAPE
+//      | UNICODE_ESCAPE
+//      | ESC_NEWLINE
+//   )* '"'
+//   ;
+
 IDENTIFIER:
     ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;
 
@@ -196,16 +225,20 @@ WHITE_SPACE:
 
 //PARSER RULES
 program
-    : (function)* funcMain (function)*
+    : (functionReturn)* funcMain (functionReturn)*
 ;
 
 
 funcMain
-    : FN 'main'L_PAREN R_PAREN funcScope
+    : FN 'main'L_PAREN R_PAREN L_CURLY (bodyScope)* R_CURLY
 ;
 
-function
-    : FN IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? funcScope
+functionReturn
+    : FN IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? L_CURLY (bodyScope)* return R_CURLY
+;
+
+functionNoReturn
+    : FN IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN L_CURLY (bodyScope)* R_CURLY
 ;
 
 funcType
@@ -216,25 +249,20 @@ return
     : (RETURN)? (mathExpression | relExpression | IDENTIFIER)
 ;
 
-funcScope:
-    L_CURLY (bodyScope)* (return)? R_CURLY
-;
-
 funcCall
     : IDENTIFIER L_PAREN (funcCallArg (COMMA funcCallArg)*)? R_PAREN
 ;
 
 funcCallArg: mathExpression | funcCall | anonimousFuncWithReturn | anonimousFuncNoReturn;
 
-//() int -> {}
 anonimousFuncWithReturn
-    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN dataTypes ARROW L_CURLY (bodyScope)* return R_CURLY
-    | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN dataTypes ARROW (bodyScope)? return
+    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN dataTypes ARROW L_CURLY bodyScope* return R_CURLY
+    | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN dataTypes ARROW bodyScope? return
 ;
 
 anonimousFuncNoReturn
-    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN ARROW L_CURLY (bodyScope)* R_CURLY
-    | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN ARROW (bodyScope)*
+    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN ARROW L_CURLY bodyScope+ R_CURLY
+    | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN ARROW bodyScope
 ;
 
 ifScope:
@@ -277,7 +305,8 @@ bodyScope
     : variable
     | assignment
     | ifExpression
-    | function
+    | functionReturn
+    | functionNoReturn
     | funcCall
     | println
     | forEach
@@ -301,6 +330,7 @@ dataTypes:  TYPE_INT | TYPE_FLOAT;
 
 assignment
     : variable EQ (slice | array | anonimousFuncWithReturn | anonimousFuncNoReturn | mathExpression | relExpression | mapFilterReduce)
+    | IDENTIFIER EQ (slice | array | anonimousFuncWithReturn | anonimousFuncNoReturn | mathExpression | relExpression | mapFilterReduce)
 ;
 
 array

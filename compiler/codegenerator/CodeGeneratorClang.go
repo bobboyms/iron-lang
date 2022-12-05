@@ -5,7 +5,6 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"iron-lang/compiler/ironlang"
 	"iron-lang/compiler/scopes"
-	"iron-lang/compiler/utils"
 	"strconv"
 	"strings"
 )
@@ -61,8 +60,6 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitProgram(val)
 	case *ironlang.FuncMainContext:
 		l.VisitFuncMain(val)
-	case *ironlang.FuncScopeContext:
-		l.VisitScope(val)
 	case *ironlang.MathExpressionContext:
 		l.VisitMathExpression(val)
 	case *ironlang.AssignmentContext:
@@ -73,8 +70,10 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitVariable(val)
 	case *ironlang.DataTypesContext:
 		l.VisitDataTypes(val)
-	case *ironlang.FunctionContext:
-		l.VisitFunction(val)
+	case *ironlang.FunctionReturnContext:
+		l.VisitFunctionReturn(val)
+	case *ironlang.FunctionNoReturnContext:
+		l.VisitFunctionNoReturn(val)
 	case *ironlang.ReturnContext:
 		l.VisitReturn(val)
 	case *ironlang.FuncCallContext:
@@ -463,7 +462,7 @@ func (l *ClangPlus) VisitFuncType(ctx *ironlang.FuncTypeContext) {
 	} else {
 		l.StrBuilder.WriteString("void ")
 	}
-	l.StrBuilder.WriteString("(*")
+	l.StrBuilder.WriteString("(")
 	l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
 	l.StrBuilder.WriteString(")")
 	l.StrBuilder.WriteString("(")
@@ -493,7 +492,9 @@ func (l *ClangPlus) VisitFuncArg(ctx *ironlang.FuncArgContext) {
 func (l *ClangPlus) VisitFuncMain(ctx *ironlang.FuncMainContext) {
 	l.StrBuilder.WriteString("int main() ")
 	l.StrBuilder.WriteString("{\n")
-	l.Visit(ctx.FuncScope())
+	for _, body := range ctx.AllBodyScope() {
+		l.Visit(body)
+	}
 	l.StrBuilder.WriteString("std::cout << \"Hello world!\";\n")
 	l.StrBuilder.WriteString("return 0;\n")
 	l.StrBuilder.WriteString("}\n")
@@ -533,16 +534,30 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 		l.Visit(ctx.MathExpression())
 	}
 
-	var builder = NewStringBuilder()
-	if ctx.Function() != nil {
-		c := NewClang(l.ScopeLog)
-		c.Visit(ctx.Function())
-		builder.WriteString(c.GetBuilder().String())
+	if l.StrFuncBuilder == nil {
+		l.StrFuncBuilder = NewStringBuilder()
 	}
 
-	if len(builder.GetBuilder().String()) > 0 {
-		l.StrFuncBuilder = NewStringBuilder()
-		l.StrFuncBuilder.WriteString(builder.GetBuilder().String())
+	var builder = NewStringBuilder()
+	if ctx.FunctionReturn() != nil {
+		c := NewClang(l.ScopeLog)
+		c.Visit(ctx.FunctionReturn())
+		builder.WriteString(c.GetBuilder().String())
+
+		if len(builder.GetBuilder().String()) > 0 {
+			l.StrFuncBuilder.WriteString(builder.GetBuilder().String())
+		}
+	}
+
+	builder = NewStringBuilder()
+	if ctx.FunctionNoReturn() != nil {
+		c := NewClang(l.ScopeLog)
+		c.Visit(ctx.FunctionNoReturn())
+		print(c.GetBuilder().String())
+		builder.WriteString(c.GetBuilder().String())
+		if len(builder.GetBuilder().String()) > 0 {
+			l.StrFuncBuilder.WriteString(builder.GetBuilder().String())
+		}
 	}
 
 	if ctx.FuncCall() != nil {
@@ -552,24 +567,6 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 	if ctx.ForEach() != nil {
 		l.Visit(ctx.ForEach())
 	}
-
-}
-
-func (l *ClangPlus) VisitScope(ctx *ironlang.FuncScopeContext) {
-
-	l.EnterScope()
-	l.ScopeLog.EnterScope(utils.GetMD5Hash(ctx.GetText()))
-
-	for _, body := range ctx.AllBodyScope() {
-		l.Visit(body)
-	}
-
-	if ctx.Return() != nil {
-		l.Visit(ctx.Return())
-	}
-
-	l.ExitScope()
-	l.ScopeLog.ExitScope()
 
 }
 
@@ -712,7 +709,25 @@ func (l *ClangPlus) VisitFuncCallArg(ctx *ironlang.FuncCallArgContext) {
 
 }
 
-func (l *ClangPlus) VisitFunction(ctx *ironlang.FunctionContext) {
+func (l *ClangPlus) VisitFunctionNoReturn(ctx *ironlang.FunctionNoReturnContext) {
+
+	l.StrBuilder.WriteString("void ")
+	l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
+	l.StrBuilder.WriteString("(")
+	for _, functionArg := range ctx.AllFunctionArgs() {
+		l.Visit(functionArg)
+	}
+	l.StrBuilder.WriteString(") ")
+	l.StrBuilder.WriteString("{\n")
+
+	for _, body := range ctx.AllBodyScope() {
+		l.Visit(body)
+	}
+
+	l.StrBuilder.WriteString("};\n")
+}
+
+func (l *ClangPlus) VisitFunctionReturn(ctx *ironlang.FunctionReturnContext) {
 
 	if ctx.DataTypes() != nil {
 		l.Visit(ctx.DataTypes())
@@ -722,9 +737,25 @@ func (l *ClangPlus) VisitFunction(ctx *ironlang.FunctionContext) {
 
 	l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
 	l.StrBuilder.WriteString("(")
+	for _, functionArg := range ctx.AllFunctionArgs() {
+		l.Visit(functionArg)
+	}
 	l.StrBuilder.WriteString(") ")
 	l.StrBuilder.WriteString("{\n")
-	l.Visit(ctx.FuncScope())
+
+	//l.EnterScope()
+	////sdsd
+	//l.ScopeLog.EnterScope(utils.GetMD5Hash(ctx.GetText()))
+	//l.ScopeLog.ExitScope()
+
+	for _, body := range ctx.AllBodyScope() {
+		l.Visit(body)
+	}
+
+	if ctx.Return() != nil {
+		l.Visit(ctx.Return())
+	}
+
 	l.StrBuilder.WriteString("};\n")
 }
 
