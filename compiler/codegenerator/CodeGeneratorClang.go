@@ -55,6 +55,7 @@ func (l *ClangPlus) InitVectorSlicing() {
 }
 
 func (l *ClangPlus) Visit(tree antlr.ParseTree) {
+
 	switch val := tree.(type) {
 	case *ironlang.ProgramContext:
 		l.VisitProgram(val)
@@ -96,8 +97,8 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitArray(val)
 	case *ironlang.ForEachContext:
 		l.VisitForEach(val)
-	case *ironlang.MapFilterReduceContext:
-		l.VisitMapFilterReduce(val)
+	case *ironlang.ExpressionContext:
+		l.VisitExpression(val)
 	case *ironlang.MapContext:
 		l.VisitMap(val)
 	case *ironlang.FilterContext:
@@ -126,6 +127,10 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitLoopForI(val)
 	case *ironlang.SliceContext:
 		l.VisitSlice(val)
+	case *ironlang.StructContext:
+		l.VisitStruct(val)
+	case *ironlang.InitStructContext:
+		l.VisitInitStruct(val)
 
 	default:
 		panic("Unknown context")
@@ -146,10 +151,113 @@ func (l *ClangPlus) VisitProgram(ctx *ironlang.ProgramContext) {
 	l.StrImportBuilder.WriteString("#include <iostream>\n")
 	l.StrImportBuilder.WriteString("#include <vector>\n")
 	l.StrImportBuilder.WriteString("#include <numeric>\n")
+
+	for i := range ctx.AllStruct() {
+		l.Visit(ctx.Struct(i))
+	}
+
 	l.InitForEachFunction()
 	l.InitVectorSlicing()
 	l.Visit(ctx.FuncMain())
 	l.StrBuilder.WriteString("\n")
+}
+
+func (l *ClangPlus) VisitInitStruct(ctx *ironlang.InitStructContext) {
+
+	var variableName string
+	if assignment, ok := ctx.GetParent().(*ironlang.AssignmentContext); ok {
+		structName := ctx.GetStructName().GetText()
+		variable := assignment.Variable().(*ironlang.VariableContext)
+		variableName = variable.GetVariableName().GetText()
+		l.StrBuilder.WriteString(structName)
+		l.StrBuilder.WriteString(" ")
+		l.StrBuilder.WriteString(variableName)
+		l.StrBuilder.WriteString(";\n")
+	} else if initStructBody, ok := ctx.GetParent().(*ironlang.InitStructBodyContext); ok {
+		variableName = initStructBody.GetStructKey().GetText()
+	} else {
+		panic("Invalid init struct")
+	}
+
+	for _, useStructBodyContext := range ctx.AllInitStructBody() {
+
+		structBody := useStructBodyContext.(*ironlang.InitStructBodyContext)
+		structKey := structBody.GetStructKey().GetText()
+
+		if structBody.InitStruct() != nil {
+			initStruct := structBody.InitStruct().(*ironlang.InitStructContext)
+			structName := initStruct.GetStructName().GetText()
+
+			l.StrBuilder.WriteString(structName)
+			l.StrBuilder.WriteString(" ")
+			l.StrBuilder.WriteString(structKey)
+			l.StrBuilder.WriteString(";\n")
+
+			l.StrBuilder.WriteString(variableName)
+			l.StrBuilder.WriteString(".")
+			l.StrBuilder.WriteString(structKey)
+			l.StrBuilder.WriteString(" = ")
+			l.StrBuilder.WriteString(structKey)
+			l.StrBuilder.WriteString(";\n")
+
+			l.Visit(structBody.InitStruct())
+
+		} else {
+			l.StrBuilder.WriteString(variableName)
+			l.StrBuilder.WriteString(".")
+			l.StrBuilder.WriteString(structKey)
+			l.StrBuilder.WriteString(" = ")
+		}
+
+		if structBody.INT_NUMBER() != nil {
+			l.StrBuilder.WriteString(structBody.INT_NUMBER().GetText())
+		}
+
+		if structBody.REAL_NUMBER() != nil {
+			l.StrBuilder.WriteString(structBody.REAL_NUMBER().GetText())
+		}
+
+		if structBody.BOOLEAN_VALUE() != nil {
+			l.StrBuilder.WriteString(structBody.BOOLEAN_VALUE().GetText())
+		}
+
+		if structBody.STRING_LITERAL() != nil {
+			l.StrBuilder.WriteString(structBody.STRING_LITERAL().GetText())
+		}
+
+		if structBody.GetAsIdent() != nil {
+			l.StrBuilder.WriteString(structBody.GetAsIdent().GetText())
+		}
+
+		if structBody.FuncCall() != nil {
+			l.Visit(structBody.FuncCall())
+		}
+
+		l.StrBuilder.WriteString(";\n")
+
+	}
+}
+
+func (l *ClangPlus) VisitStruct(ctx *ironlang.StructContext) {
+	l.StrBuilder.WriteString("struct ")
+	l.StrBuilder.WriteString(ctx.GetStructName().GetText())
+	l.StrBuilder.WriteString(" {\n")
+
+	for _, structBodyContext := range ctx.AllStructBody() {
+		structBody := structBodyContext.(*ironlang.StructBodyContext)
+
+		if structBody.DataTypes() != nil {
+			l.Visit(structBody.DataTypes())
+		} else {
+			l.StrBuilder.WriteString(structBody.GetType().GetText())
+			l.StrBuilder.WriteString(" ")
+		}
+
+		l.StrBuilder.WriteString(structBody.GetStructKey().GetText())
+		l.StrBuilder.WriteString(";\n")
+	}
+
+	l.StrBuilder.WriteString("};\n")
 }
 
 func (l *ClangPlus) VisitLoopForI(ctx *ironlang.LoopForIContext) {
@@ -392,7 +500,7 @@ func (l *ClangPlus) VisitReduce(ctx *ironlang.ReduceContext) {
 	l.LastIdentifier = reduceResultTempName
 }
 
-func (l *ClangPlus) VisitMapFilterReduce(ctx *ironlang.MapFilterReduceContext) {
+func (l *ClangPlus) VisitExpression(ctx *ironlang.ExpressionContext) {
 
 	if ctx.Array() != nil {
 
@@ -450,7 +558,7 @@ func (l *ClangPlus) VisitMapFilterReduce(ctx *ironlang.MapFilterReduceContext) {
 		l.LastIdentifier = reduceTempName
 	}
 
-	for _, context := range ctx.AllMapFilterReduce() {
+	for _, context := range ctx.AllExpression() {
 		l.Visit(context)
 	}
 
@@ -579,23 +687,6 @@ func (l *ClangPlus) ExitScope() {
 }
 
 func (l *ClangPlus) VisitReturn(ctx *ironlang.ReturnContext) {
-
-	//if ctx.RETURN() == nil {
-	//	if v, ok := ctx.GetParent().(*ironlang.AnonimousFuncContext); ok {
-	//		if v.DataTypes() != nil {
-	//			l.StrBuilder.WriteString("return ")
-	//		}
-	//	}
-	//
-	//	if v, ok := ctx.GetParent().GetParent().(*ironlang.FunctionContext); ok {
-	//		if v.DataTypes() != nil {
-	//			l.StrBuilder.WriteString("return ")
-	//		}
-	//	}
-	//
-	//} else {
-	//
-	//}
 
 	l.StrBuilder.WriteString("return ")
 
@@ -802,19 +893,36 @@ func (l *ClangPlus) VisitVariable(ctx *ironlang.VariableContext) {
 
 	switch ctx.GetParent().(type) {
 	case *ironlang.AssignmentContext:
-		l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
+		l.StrBuilder.WriteString(ctx.GetVariableName().GetText())
 	default:
-		l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText() + ";\n")
+		l.StrBuilder.WriteString(ctx.GetVariableName().GetText() + ";\n")
 	}
 
 }
 
 func (l *ClangPlus) VisitDataTypes(ctx *ironlang.DataTypesContext) {
+
 	if ctx.TYPE_INT() != nil {
 		l.StrBuilder.WriteString("int ")
-	} else {
-		l.StrBuilder.WriteString("float ")
+		return
 	}
+
+	if ctx.TYPE_FLOAT() != nil {
+		l.StrBuilder.WriteString("float ")
+		return
+	}
+
+	if ctx.TYPE_BOOLEAN() != nil {
+		l.StrBuilder.WriteString("bool ")
+		return
+	}
+
+	if ctx.TYPE_STRING() != nil {
+		l.StrBuilder.WriteString("std::string ")
+		return
+	}
+
+	panic("Invalid data type")
 }
 
 func (l *ClangPlus) VisitSlice(ctx *ironlang.SliceContext) {
@@ -826,9 +934,10 @@ func (l *ClangPlus) VisitSlice(ctx *ironlang.SliceContext) {
 
 func (l *ClangPlus) VisitAssignment(ctx *ironlang.AssignmentContext) {
 
-	//if ctx.IDENTIFIER() != nil {
-	//	l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText() + " = ")
-	//}
+	if ctx.InitStruct() != nil {
+		l.Visit(ctx.InitStruct())
+		return
+	}
 
 	if ctx.Slice() != nil {
 		l.Visit(ctx.Variable())
@@ -838,7 +947,7 @@ func (l *ClangPlus) VisitAssignment(ctx *ironlang.AssignmentContext) {
 		return
 	}
 
-	if ctx.MapFilterReduce() == nil {
+	if len(ctx.AllExpression()) == 0 {
 		if ctx.Variable() != nil {
 			l.Visit(ctx.Variable())
 			l.StrBuilder.WriteString(" = ")
@@ -865,11 +974,13 @@ func (l *ClangPlus) VisitAssignment(ctx *ironlang.AssignmentContext) {
 		l.Visit(ctx.Array())
 	}
 
-	if ctx.MapFilterReduce() != nil {
-		l.Visit(ctx.MapFilterReduce())
+	if len(ctx.AllExpression()) > 0 {
+		for _, expression := range ctx.AllExpression() {
+			l.Visit(expression)
+		}
 	}
 
-	if ctx.MapFilterReduce() != nil {
+	if len(ctx.AllExpression()) > 0 {
 		if ctx.Variable() != nil {
 			l.Visit(ctx.Variable())
 			l.StrBuilder.WriteString(" = ")
@@ -948,15 +1059,15 @@ func (l *ClangPlus) VisitRelExpression(ctx *ironlang.RelExpressionContext) {
 		l.StrBuilder.WriteString(" ")
 	}
 
-	if ctx.TYPE_BOOLEAN() != nil {
-		l.StrBuilder.WriteString(ctx.TYPE_BOOLEAN().GetText())
+	if ctx.BOOLEAN_VALUE() != nil {
+		l.StrBuilder.WriteString(ctx.BOOLEAN_VALUE().GetText())
 		l.StrBuilder.WriteString(" ")
 	}
 
 	if len(ctx.AllRelExpression()) == 2 {
 		l.Visit(ctx.AllRelExpression()[0])
-		if ctx.TYPE_BOOLEAN() != nil {
-			l.StrBuilder.WriteString(ctx.TYPE_BOOLEAN().GetText() + " ")
+		if ctx.BOOLEAN_VALUE() != nil {
+			l.StrBuilder.WriteString(ctx.BOOLEAN_VALUE().GetText() + " ")
 		}
 
 		if ctx.EQEQ() != nil {

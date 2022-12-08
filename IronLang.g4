@@ -176,6 +176,10 @@ PRINT_LN:
     'println'
 ;
 
+STRUCT:
+    'struct'
+;
+
 //Var Types
 TYPE_INT
     : 'int'
@@ -185,7 +189,15 @@ TYPE_FLOAT
     : 'float'
 ;
 
-TYPE_BOOLEAN:
+TYPE_STRING
+    : 'string'
+;
+
+TYPE_BOOLEAN
+    : 'boolean'
+;
+
+BOOLEAN_VALUE:
     'true' | 'false'
 ;
 
@@ -193,28 +205,26 @@ MULT_LINE_COMMENT
     : '/*' .*? '*/' -> channel(HIDDEN)
 ;
 //
-//fragment ESC_NEWLINE: '\\' '\n';
-//fragment OCT_DIGIT: [0-7];
-//fragment QUOTE_ESCAPE: '\\' ['"];
-//fragment HEX_DIGIT: [0-9a-fA-F];
-//fragment COMMON_ESCAPE: '\\' [nrt\\0];
-//fragment ASCII_ESCAPE: '\\x' OCT_DIGIT HEX_DIGIT | COMMON_ESCAPE;
-//fragment UNICODE_ESCAPE
-//   : '\\u{' HEX_DIGIT HEX_DIGIT? HEX_DIGIT? HEX_DIGIT? HEX_DIGIT? HEX_DIGIT? '}'
-//;
-//
-//
-//
-//STRING_LITERAL
-//   : '"'
-//   (
-//      ~["]
-//      | QUOTE_ESCAPE
-//      | ASCII_ESCAPE
-//      | UNICODE_ESCAPE
-//      | ESC_NEWLINE
-//   )* '"'
-//   ;
+fragment ESC_NEWLINE: '\\' '\n';
+fragment OCT_DIGIT: [0-7];
+fragment QUOTE_ESCAPE: '\\' ['"];
+fragment HEX_DIGIT: [0-9a-fA-F];
+fragment COMMON_ESCAPE: '\\' [nrt\\0];
+fragment ASCII_ESCAPE: '\\x' OCT_DIGIT HEX_DIGIT | COMMON_ESCAPE;
+fragment UNICODE_ESCAPE
+   : '\\u{' HEX_DIGIT HEX_DIGIT? HEX_DIGIT? HEX_DIGIT? HEX_DIGIT? HEX_DIGIT? '}'
+;
+
+STRING_LITERAL
+   : '"'
+   (
+      ~["]
+      | QUOTE_ESCAPE
+      | ASCII_ESCAPE
+      | UNICODE_ESCAPE
+      | ESC_NEWLINE
+   )* '"'
+   ;
 
 IDENTIFIER:
     ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;
@@ -225,7 +235,7 @@ WHITE_SPACE:
 
 //PARSER RULES
 program
-    : (functionReturn)* funcMain (functionReturn)*
+    : struct* funcMain
 ;
 
 
@@ -315,22 +325,38 @@ bodyScope
     | loopForIn
     | loopForI
     | mathExpression
-    | mapFilterReduce
+    | expression
+;
+
+struct
+    : STRUCT structName=IDENTIFIER L_CURLY (structBody)+ R_CURLY;
+
+structBody
+    : structKey=IDENTIFIER (dataTypes | type=IDENTIFIER)
+;
+
+initStruct
+    : structName=IDENTIFIER L_CURLY (initStructBody)+ R_CURLY
+;
+
+initStructBody
+    : structKey=IDENTIFIER ':' (funcCall | expression | BOOLEAN_VALUE | INT_NUMBER | REAL_NUMBER | STRING_LITERAL | asIdent=IDENTIFIER | initStruct)
 ;
 
 println: PRINT_LN L_PAREN (variable | IDENTIFIER) R_PAREN;
 
-variable: (MUT)? LET IDENTIFIER (dataTypes)?;
+variable: (MUT)? LET variableName=IDENTIFIER (dataTypes)?;
 
 functionArgs: funcArg (COMMA funcArg)*;
 
 funcArg: (MUT)? IDENTIFIER dataTypes | funcType;
 
-dataTypes:  TYPE_INT | TYPE_FLOAT;
+dataTypes:  TYPE_INT | TYPE_FLOAT | TYPE_BOOLEAN | TYPE_STRING;
 
 assignment
-    : variable EQ (slice | array | anonimousFuncWithReturn | anonimousFuncNoReturn | mathExpression | relExpression | mapFilterReduce)
-    | IDENTIFIER EQ (slice | array | anonimousFuncWithReturn | anonimousFuncNoReturn | mathExpression | relExpression | mapFilterReduce)
+    : variable EQ (STRING_LITERAL | BOOLEAN_VALUE | slice | array | anonimousFuncWithReturn | anonimousFuncNoReturn | mathExpression | relExpression | expression | initStruct)
+    | expression EQ (STRING_LITERAL | BOOLEAN_VALUE | slice | array | mathExpression | relExpression | initStruct | expression)
+    | IDENTIFIER EQ (STRING_LITERAL | BOOLEAN_VALUE | slice | array | anonimousFuncWithReturn | anonimousFuncNoReturn | mathExpression | relExpression | expression)
 ;
 
 array
@@ -346,14 +372,15 @@ forEach
     | array DOT FOR_EACH L_PAREN (anonimousFuncNoReturn | IDENTIFIER) R_PAREN
 ;
 
-mapFilterReduce
-    : mapFilterReduce DOT mapFilterReduce
+expression
+    : expression DOT expression
     | slice
     | IDENTIFIER
     | map
     | filter
     | reduce
     | array
+    | funcCall
 ;
 
 map
@@ -375,7 +402,7 @@ relExpression
     | IDENTIFIER
     | atom
     | funcCall
-    | TYPE_BOOLEAN
+    | BOOLEAN_VALUE
 ;
 
 mathExpression
