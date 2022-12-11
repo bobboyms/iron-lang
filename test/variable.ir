@@ -1,0 +1,15 @@
+package teste;
+
+fn main() int {
+    let varName1 string
+    let varName2 string = "Literal string"
+    let varName3 = "Literal string"
+    let varName4 = 24
+    let varName5 float = 24.687
+    let varName6 boolean = false
+    mut let varName7 = 36
+    let varName8 char = 'A'
+    let varName9 double = 9.69
+    let varName10 int = 12354
+    0
+}

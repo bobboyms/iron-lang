@@ -197,14 +197,38 @@ TYPE_BOOLEAN
     : 'boolean'
 ;
 
+TYPE_DOUBLE
+    : 'double'
+;
+
+TYPE_CHAR
+    : 'char'
+;
+
 BOOLEAN_VALUE:
     'true' | 'false'
+;
+
+TRAIT
+    : 'trait'
+;
+
+IMPL
+    : 'impl'
+;
+
+THIS
+    : 'this'
+;
+
+PACKAGE
+    : 'package'
 ;
 
 MULT_LINE_COMMENT
     : '/*' .*? '*/' -> channel(HIDDEN)
 ;
-//
+
 fragment ESC_NEWLINE: '\\' '\n';
 fragment OCT_DIGIT: [0-7];
 fragment QUOTE_ESCAPE: '\\' ['"];
@@ -226,6 +250,17 @@ STRING_LITERAL
    )* '"'
    ;
 
+CHAR_LITERAL
+: '\''
+   (
+      ~["]
+      | QUOTE_ESCAPE
+      | ASCII_ESCAPE
+      | UNICODE_ESCAPE
+      | ESC_NEWLINE
+   ) '\''
+   ;
+
 IDENTIFIER:
     ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;
 
@@ -233,15 +268,21 @@ WHITE_SPACE:
     ( ' ' |'\t' | '\r' | '\n') -> skip
 ;
 
-//PARSER RULES
 program
-    : struct* funcMain
+    : PACKAGE packageName=IDENTIFIER ';' (bodyProgram)*
 ;
 
-
-funcMain
-    : FN 'main'L_PAREN R_PAREN L_CURLY (bodyScope)* R_CURLY
+bodyProgram
+    : functionNoReturn
+    | functionReturn
+    | trait
+    | impl
+    | struct
 ;
+
+//funcMain
+//    : FN 'main'L_PAREN R_PAREN L_CURLY (bodyScope)* R_CURLY
+//;
 
 functionReturn
     : FN IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? L_CURLY (bodyScope)* return R_CURLY
@@ -255,15 +296,19 @@ funcType
     : IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)?
 ;
 
+implConstructor
+    : 'Constructor' L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? L_CURLY (bodyScope)+ R_CURLY
+;
+
 return
-    : (RETURN)? (mathExpression | relExpression | IDENTIFIER)
+    : (RETURN)? (mathExpression | relExpression | IDENTIFIER | expression)
 ;
 
 funcCall
     : IDENTIFIER L_PAREN (funcCallArg (COMMA funcCallArg)*)? R_PAREN
 ;
 
-funcCallArg: mathExpression | funcCall | anonimousFuncWithReturn | anonimousFuncNoReturn;
+funcCallArg: mathExpression | funcCall | anonimousFuncWithReturn | anonimousFuncNoReturn | initStruct | initImpl;
 
 anonimousFuncWithReturn
     : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN dataTypes ARROW L_CURLY bodyScope* return R_CURLY
@@ -315,8 +360,6 @@ bodyScope
     : variable
     | assignment
     | ifExpression
-    | functionReturn
-    | functionNoReturn
     | funcCall
     | println
     | forEach
@@ -328,35 +371,74 @@ bodyScope
     | expression
 ;
 
-struct
-    : STRUCT structName=IDENTIFIER L_CURLY (structBody)+ R_CURLY;
+trait
+    : TRAIT interfaceName=IDENTIFIER L_CURLY (funcType)+ R_CURLY
+;
 
-structBody
-    : structKey=IDENTIFIER (dataTypes | type=IDENTIFIER)
+impl
+    : IMPL implName=IDENTIFIER (FOR traitName=IDENTIFIER)? L_CURLY (definitionVariables)* (implConstructor)* (functionReturn | functionNoReturn)* R_CURLY
+;
+
+initImpl
+    : implName=IDENTIFIER '::new'  L_PAREN (funcCallArg (COMMA funcCallArg)*)? R_PAREN
+;
+
+struct
+    : STRUCT structName=IDENTIFIER L_CURLY (definitionVariables)+ R_CURLY;
+
+definitionVariables
+    : variableName=IDENTIFIER (dataTypes | type=IDENTIFIER)
 ;
 
 initStruct
-    : structName=IDENTIFIER L_CURLY (initStructBody)+ R_CURLY
+    : structName=IDENTIFIER L_CURLY (initStructBody (COMMA initStructBody)*)? R_CURLY
 ;
 
 initStructBody
-    : structKey=IDENTIFIER ':' (funcCall | expression | BOOLEAN_VALUE | INT_NUMBER | REAL_NUMBER | STRING_LITERAL | asIdent=IDENTIFIER | initStruct)
+    : structKey=IDENTIFIER ':' (funcCall | BOOLEAN_VALUE | INT_NUMBER | REAL_NUMBER | STRING_LITERAL | asIdent=IDENTIFIER | initStruct)
 ;
 
 println: PRINT_LN L_PAREN (variable | IDENTIFIER) R_PAREN;
 
 variable: (MUT)? LET variableName=IDENTIFIER (dataTypes)?;
 
-functionArgs: funcArg (COMMA funcArg)*;
+functionArgs
+    : argName=IDENTIFIER (dataTypes | identType=IDENTIFIER)
+    | funcType
+;
 
-funcArg: (MUT)? IDENTIFIER dataTypes | funcType;
+dataTypes:  TYPE_INT | TYPE_FLOAT | TYPE_BOOLEAN | TYPE_STRING | TYPE_DOUBLE | TYPE_CHAR;
 
-dataTypes:  TYPE_INT | TYPE_FLOAT | TYPE_BOOLEAN | TYPE_STRING;
+//assignment
+//    : variable EQ (STRING_LITERAL | BOOLEAN_VALUE | slice | array | anonimousFuncWithReturn | anonimousFuncNoReturn | mathExpression | relExpression | initStruct | initImpl)
+//    | leftExpression=expression EQ (STRING_LITERAL | BOOLEAN_VALUE | slice | array | mathExpression | relExpression | initStruct | rightExpression=expression)
+//    | variableName=IDENTIFIER EQ (STRING_LITERAL | BOOLEAN_VALUE | slice | array | anonimousFuncWithReturn | anonimousFuncNoReturn | mathExpression | relExpression | identType=IDENTIFIER)
+//;
 
 assignment
-    : variable EQ (STRING_LITERAL | BOOLEAN_VALUE | slice | array | anonimousFuncWithReturn | anonimousFuncNoReturn | mathExpression | relExpression | expression | initStruct)
-    | expression EQ (STRING_LITERAL | BOOLEAN_VALUE | slice | array | mathExpression | relExpression | initStruct | expression)
-    | IDENTIFIER EQ (STRING_LITERAL | BOOLEAN_VALUE | slice | array | anonimousFuncWithReturn | anonimousFuncNoReturn | mathExpression | relExpression | expression)
+    : leftAssignment EQ rigthAssignment
+;
+
+leftAssignment
+    : variable
+    | leftExpression=expression
+    | variableName=IDENTIFIER
+;
+
+rigthAssignment
+    : STRING_LITERAL
+    | CHAR_LITERAL
+    | BOOLEAN_VALUE
+    | identType=IDENTIFIER
+    | slice
+    | array
+    | anonimousFuncWithReturn
+    | anonimousFuncNoReturn
+    | mathExpression
+    | relExpression
+    | initStruct
+    | initImpl
+    | rightExpression=expression
 ;
 
 array
@@ -372,17 +454,6 @@ forEach
     | array DOT FOR_EACH L_PAREN (anonimousFuncNoReturn | IDENTIFIER) R_PAREN
 ;
 
-expression
-    : expression DOT expression
-    | slice
-    | IDENTIFIER
-    | map
-    | filter
-    | reduce
-    | array
-    | funcCall
-;
-
 map
     : MAP L_PAREN (anonimousFuncWithReturn) R_PAREN
 ;
@@ -395,6 +466,17 @@ reduce
     : REDUCE L_PAREN (anonimousFuncWithReturn) R_PAREN
 ;
 
+//expression
+//    : expression DOT expression
+//    | slice
+//    | IDENTIFIER
+//    | map
+//    | filter
+//    | reduce
+//    | array
+//    | funcCall
+//;
+
 relExpression
     : relExpression (EQEQ | DIF | LT | GT | LTEQ | GTEQ | AND | OR) relExpression
     | L_PAREN relExpression R_PAREN
@@ -403,6 +485,13 @@ relExpression
     | atom
     | funcCall
     | BOOLEAN_VALUE
+;
+
+expression
+    : leftExpression=expression '.' rigthExpression=expression
+    | funcCall
+    | IDENTIFIER
+    | THIS
 ;
 
 mathExpression

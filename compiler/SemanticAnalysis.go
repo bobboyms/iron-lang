@@ -74,12 +74,12 @@ func (s *SemanticAnalysis) insertNewError(identifier antlr.TerminalNode, codeErr
 		errors.GetMessageError(codeError, identifier.GetText()), nil)
 }
 
-func (s *SemanticAnalysis) VisitProgram(ctx *ironlang.ProgramContext) {
-	s.Visit(ctx.FuncMain())
-}
-
-func (s *SemanticAnalysis) VisitFuncMain(ctx *ironlang.FuncMainContext) {
-}
+//func (s *SemanticAnalysis) VisitProgram(ctx *ironlang.ProgramContext) {
+//	s.Visit(ctx.FuncMain())
+//}
+//
+//func (s *SemanticAnalysis) VisitFuncMain(ctx *ironlang.FuncMainContext) {
+//}
 
 func (s *SemanticAnalysis) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 	if ctx.Variable() != nil {
