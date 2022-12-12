@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
 	"iron-lang/compiler"
 	"iron-lang/compiler/codegenerator"
 	"iron-lang/compiler/errors"
@@ -26,6 +26,7 @@ func ExampleWrite(data []byte) {
 }
 
 func main() {
+
 	is := antlr.NewInputStream("fn main() {let x = int[1,2,3,4,5,6] let nn = x[2:3].map((v int) int -> {return v * 3})}")
 	lexer := ironlang.NewIronLangLexer(is)
 	customLexerErrorListener := &errors.CustomErrorListener{}

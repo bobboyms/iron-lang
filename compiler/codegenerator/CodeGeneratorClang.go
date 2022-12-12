@@ -2,7 +2,9 @@ package codegenerator
 
 import (
 	"fmt"
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
+
+	//"github.com/antlr/antlr4/runtime/Go/antlr"
 	"iron-lang/compiler/ironlang"
 	"iron-lang/compiler/scopes"
 	"strconv"
@@ -79,7 +81,7 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitFunctionReturn(val)
 	case *ironlang.FunctionNoReturnContext:
 		l.VisitFunctionNoReturn(val)
-	case *ironlang.ReturnContext:
+	case *ironlang.ReturnDefinitionContext:
 		l.VisitReturn(val)
 	case *ironlang.FuncCallContext:
 		l.VisitFuncCall(val)
@@ -131,7 +133,7 @@ func (l *ClangPlus) Visit(tree antlr.ParseTree) {
 		l.VisitLoopForI(val)
 	case *ironlang.SliceContext:
 		l.VisitSlice(val)
-	case *ironlang.StructContext:
+	case *ironlang.StructDefinitionContext:
 		l.VisitStruct(val)
 	case *ironlang.DefinitionVariablesContext:
 		l.VisitDefinitionVariables(val)
@@ -167,8 +169,8 @@ func (l *ClangPlus) VisitBodyProgram(ctx *ironlang.BodyProgramContext) {
 		l.Visit(ctx.Trait())
 	}
 
-	if ctx.Struct() != nil {
-		l.Visit(ctx.Struct())
+	if ctx.StructDefinition() != nil {
+		l.Visit(ctx.StructDefinition())
 	}
 
 	if ctx.Impl() != nil {
@@ -190,12 +192,9 @@ func (l *ClangPlus) VisitProgram(ctx *ironlang.ProgramContext) {
 	l.StrImportBuilder.WriteString("#include <vector>\n")
 	l.StrImportBuilder.WriteString("#include <numeric>\n")
 
-	//l.InitForEachFunction()
-	//l.InitVectorSlicing()
-	//l.StrBuilder.WriteString("\n")
-
-	println(ctx.IDENTIFIER().GetText())
-	println("Tem quantos: ", len(ctx.AllBodyProgram()))
+	l.InitForEachFunction()
+	l.InitVectorSlicing()
+	l.StrBuilder.WriteString("\n")
 
 	for _, bodyProgram := range ctx.AllBodyProgram() {
 		l.Visit(bodyProgram)
@@ -312,7 +311,7 @@ func (l *ClangPlus) VisitDefinitionVariables(ctx *ironlang.DefinitionVariablesCo
 	if ctx.DataTypes() != nil {
 		l.Visit(ctx.DataTypes())
 	} else {
-		l.StrBuilder.WriteString(ctx.GetType().GetText())
+		l.StrBuilder.WriteString(ctx.GetGenericType().GetText())
 		l.StrBuilder.WriteString(" ")
 	}
 
@@ -322,16 +321,16 @@ func (l *ClangPlus) VisitDefinitionVariables(ctx *ironlang.DefinitionVariablesCo
 func (l *ClangPlus) VisitInitImpl(ctx *ironlang.InitImplContext) {
 	implName := ctx.GetImplName().GetText()
 	l.StrBuilder.WriteString(implName)
+	l.StrBuilder.WriteString("(")
 	if len(ctx.AllFuncCallArg()) > 0 {
-		l.StrBuilder.WriteString("(")
 		for i, funcCallArg := range ctx.AllFuncCallArg() {
 			l.Visit(funcCallArg)
 			if ctx.COMMA(i) != nil {
 				l.StrBuilder.WriteString(",")
 			}
 		}
-		l.StrBuilder.WriteString(")")
 	}
+	l.StrBuilder.WriteString(")")
 }
 
 func (l *ClangPlus) VisitInitStruct(ctx *ironlang.InitStructContext) {
@@ -381,7 +380,7 @@ func (l *ClangPlus) VisitInitStruct(ctx *ironlang.InitStructContext) {
 	l.StrBuilder.WriteString("}")
 }
 
-func (l *ClangPlus) VisitStruct(ctx *ironlang.StructContext) {
+func (l *ClangPlus) VisitStruct(ctx *ironlang.StructDefinitionContext) {
 	l.StrBuilder.WriteString("struct ")
 	l.StrBuilder.WriteString(ctx.GetStructName().GetText())
 	l.StrBuilder.WriteString(" {\n")
@@ -769,6 +768,7 @@ func (l *ClangPlus) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 
 	if ctx.Assignment() != nil {
 		l.Visit(ctx.Assignment())
+		l.StrBuilder.WriteString(";\n")
 		return
 	}
 
@@ -823,28 +823,28 @@ func (l *ClangPlus) ExitScope() {
 	l.ScopeId -= 1
 }
 
-func (l *ClangPlus) VisitReturn(ctx *ironlang.ReturnContext) {
+func (l *ClangPlus) VisitReturn(ctx *ironlang.ReturnDefinitionContext) {
 
 	l.StrBuilder.WriteString("return ")
 
 	if ctx.MathExpression() != nil {
 		l.Visit(ctx.MathExpression())
-		l.StrBuilder.WriteString(";\n")
+		//l.StrBuilder.WriteString(";\n")
 	}
 
 	if ctx.RelExpression() != nil {
 		l.Visit(ctx.RelExpression())
-		l.StrBuilder.WriteString(";\n")
+		//l.StrBuilder.WriteString(";\n")
 	}
 
 	if ctx.Expression() != nil {
 		l.Visit(ctx.Expression())
-		l.StrBuilder.WriteString(";\n")
+		//l.StrBuilder.WriteString(";\n")
 	}
 
 	if ctx.IDENTIFIER() != nil {
 		l.StrBuilder.WriteString(ctx.IDENTIFIER().GetText())
-		l.StrBuilder.WriteString(";\n")
+		//l.StrBuilder.WriteString(";\n")
 	}
 }
 
@@ -922,8 +922,9 @@ func (l *ClangPlus) VisitAnonymousFuncWithReturn(ctx *ironlang.AnonimousFuncWith
 		l.Visit(bodyScope)
 	}
 
-	if ctx.Return() != nil {
-		l.Visit(ctx.Return())
+	if ctx.ReturnDefinition() != nil {
+		l.Visit(ctx.ReturnDefinition())
+		l.StrBuilder.WriteString(";\n")
 	}
 	l.StrBuilder.WriteString("}")
 
@@ -952,6 +953,14 @@ func (l *ClangPlus) VisitFuncCallArg(ctx *ironlang.FuncCallArgContext) {
 
 	if ctx.InitImpl() != nil {
 		l.Visit(ctx.InitImpl())
+	}
+
+	if ctx.STRING_LITERAL() != nil {
+		l.StrBuilder.WriteString(ctx.STRING_LITERAL().GetText())
+	}
+
+	if ctx.CHAR_LITERAL() != nil {
+		l.StrBuilder.WriteString(ctx.CHAR_LITERAL().GetText())
 	}
 
 }
@@ -1000,11 +1009,12 @@ func (l *ClangPlus) VisitFunctionReturn(ctx *ironlang.FunctionReturnContext) {
 		l.Visit(body)
 	}
 
-	if ctx.Return() != nil {
-		l.Visit(ctx.Return())
+	if ctx.ReturnDefinition() != nil {
+		l.Visit(ctx.ReturnDefinition())
+		l.StrBuilder.WriteString(";\n")
 	}
 
-	l.StrBuilder.WriteString("}\n")
+	l.StrBuilder.WriteString("}")
 
 }
 
@@ -1032,9 +1042,9 @@ func (l *ClangPlus) VisitFunctionReturn(ctx *ironlang.FunctionReturnContext) {
 
 func (l *ClangPlus) VisitVariable(ctx *ironlang.VariableContext) {
 
-	if ctx.MUT() == nil {
-		l.StrBuilder.WriteString("const ")
-	}
+	//if ctx.MUT() == nil {
+	//	l.StrBuilder.WriteString("const ")
+	//}
 
 	if ctx.DataTypes() != nil {
 		l.Visit(ctx.DataTypes())
@@ -1184,7 +1194,7 @@ func (l *ClangPlus) VisitAssignment(ctx *ironlang.AssignmentContext) {
 	l.Visit(ctx.LeftAssignment())
 	l.StrBuilder.WriteString(" = ")
 	l.Visit(ctx.RigthAssignment())
-	l.StrBuilder.WriteString(";\n")
+	//l.StrBuilder.WriteString(";\n")
 
 }
 

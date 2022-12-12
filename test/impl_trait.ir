@@ -1,0 +1,30 @@
+package teste;
+
+trait Person {
+    speek(speech string)
+}
+
+impl Jack for Person {
+    language string
+    speech string
+
+    Constructor(language string) {
+        this.language = language
+    }
+
+    Constructor() {
+        this.language = "PT-BR"
+    }
+
+    fn speek(speech string) {
+        this.speech = speech
+    }
+}
+
+fn main() int {
+
+    let jack1 = Jack::new()
+    let jack2 = Jack::new("EN")
+    0
+
+}

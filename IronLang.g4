@@ -277,7 +277,7 @@ bodyProgram
     | functionReturn
     | trait
     | impl
-    | struct
+    | structDefinition
 ;
 
 //funcMain
@@ -285,7 +285,7 @@ bodyProgram
 //;
 
 functionReturn
-    : FN IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? L_CURLY (bodyScope)* return R_CURLY
+    : FN IDENTIFIER L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? L_CURLY (bodyScope)* returnDefinition R_CURLY
 ;
 
 functionNoReturn
@@ -300,7 +300,7 @@ implConstructor
     : 'Constructor' L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN (dataTypes)? L_CURLY (bodyScope)+ R_CURLY
 ;
 
-return
+returnDefinition
     : (RETURN)? (mathExpression | relExpression | IDENTIFIER | expression)
 ;
 
@@ -308,11 +308,21 @@ funcCall
     : IDENTIFIER L_PAREN (funcCallArg (COMMA funcCallArg)*)? R_PAREN
 ;
 
-funcCallArg: mathExpression | funcCall | anonimousFuncWithReturn | anonimousFuncNoReturn | initStruct | initImpl;
+funcCallArg
+    : mathExpression
+    | funcCall
+    | anonimousFuncWithReturn
+    | anonimousFuncNoReturn
+    | initStruct
+    | initImpl
+    | STRING_LITERAL
+    | CHAR_LITERAL
+    | BOOLEAN_VALUE
+;
 
 anonimousFuncWithReturn
-    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN dataTypes ARROW L_CURLY bodyScope* return R_CURLY
-    | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN dataTypes ARROW bodyScope? return
+    : L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN dataTypes ARROW L_CURLY bodyScope* returnDefinition R_CURLY
+    | L_PAREN (functionArgs (COMMA functionArgs)*)? R_PAREN dataTypes ARROW bodyScope? returnDefinition
 ;
 
 anonimousFuncNoReturn
@@ -383,11 +393,11 @@ initImpl
     : implName=IDENTIFIER '::new'  L_PAREN (funcCallArg (COMMA funcCallArg)*)? R_PAREN
 ;
 
-struct
+structDefinition
     : STRUCT structName=IDENTIFIER L_CURLY (definitionVariables)+ R_CURLY;
 
 definitionVariables
-    : variableName=IDENTIFIER (dataTypes | type=IDENTIFIER)
+    : variableName=IDENTIFIER (dataTypes | genericType=IDENTIFIER)
 ;
 
 initStruct

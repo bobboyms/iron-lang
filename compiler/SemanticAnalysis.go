@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
 	"iron-lang/compiler/errors"
 	"iron-lang/compiler/ironlang"
 	"iron-lang/compiler/scopes"
@@ -54,7 +54,7 @@ func (s *SemanticAnalysis) Visit(tree antlr.ParseTree) {
 //
 //}
 
-func (s *SemanticAnalysis) VisitReturn(ctx *ironlang.ReturnContext) {
+func (s *SemanticAnalysis) VisitReturn(ctx *ironlang.ReturnDefinitionContext) {
 }
 
 func (s *SemanticAnalysis) VisitFuncCall(ctx *ironlang.FuncCallContext) {
@@ -82,13 +82,13 @@ func (s *SemanticAnalysis) insertNewError(identifier antlr.TerminalNode, codeErr
 //}
 
 func (s *SemanticAnalysis) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
-	if ctx.Variable() != nil {
-		s.Visit(ctx.Variable())
-	}
-
-	if ctx.Assignment() != nil {
-		s.Visit(ctx.Assignment())
-	}
+	//if ctx.Variable() != nil {
+	//	s.Visit(ctx.Variable())
+	//}
+	//
+	//if ctx.Assignment() != nil {
+	//	s.Visit(ctx.Assignment())
+	//}
 
 	//if ctx.Function() != nil {
 	//	s.Visit(ctx.Function())
@@ -113,30 +113,30 @@ func (s *SemanticAnalysis) VisitBodyScope(ctx *ironlang.BodyScopeContext) {
 
 func (s *SemanticAnalysis) VisitVariable(ctx *ironlang.VariableContext) {
 
-	identifier := ctx.IDENTIFIER()
-
-	if ctx.DataTypes() == nil {
-		switch ctx.GetParent().(type) {
-		case *ironlang.AssignmentContext:
-		default:
-			s.insertNewError(identifier, errors.VariableNotDefined)
-		}
-	} else if s.ScopesManager.GetVariable(identifier.GetText()) == nil {
-		dataType := ctx.DataTypes().(*ironlang.DataTypesContext)
-
-		if dataType.TYPE_INT() != nil {
-			s.ScopesManager.RegisterVariable(
-				identifier.GetText(),
-				ironlang.IronLangParserTYPE_INT)
-		} else {
-			s.ScopesManager.RegisterVariable(
-				identifier.GetText(),
-				ironlang.IronLangParserTYPE_FLOAT)
-		}
-
-	} else {
-		s.insertNewError(identifier, errors.VariableHasDeclared)
-	}
+	//identifier := ctx.IDENTIFIER()
+	//
+	//if ctx.DataTypes() == nil {
+	//	switch ctx.GetParent().(type) {
+	//	case *ironlang.AssignmentContext:
+	//	default:
+	//		s.insertNewError(identifier, errors.VariableNotDefined)
+	//	}
+	//} else if s.ScopesManager.GetVariable(identifier.GetText()) == nil {
+	//	dataType := ctx.DataTypes().(*ironlang.DataTypesContext)
+	//
+	//	if dataType.TYPE_INT() != nil {
+	//		s.ScopesManager.RegisterVariable(
+	//			identifier.GetText(),
+	//			ironlang.IronLangParserTYPE_INT)
+	//	} else {
+	//		s.ScopesManager.RegisterVariable(
+	//			identifier.GetText(),
+	//			ironlang.IronLangParserTYPE_FLOAT)
+	//	}
+	//
+	//} else {
+	//	s.insertNewError(identifier, errors.VariableHasDeclared)
+	//}
 }
 
 func (s *SemanticAnalysis) VisitDataTypes(ctx *ironlang.DataTypesContext) {
@@ -148,9 +148,9 @@ func (s *SemanticAnalysis) VisitAssignment(ctx *ironlang.AssignmentContext) {
 }
 
 func (s *SemanticAnalysis) VisitMathExpression(ctx *ironlang.MathExpressionContext) {
-	if ctx.Atom() != nil {
-		s.Visit(ctx.Atom())
-	}
+	//if ctx.Atom() != nil {
+	//	s.Visit(ctx.Atom())
+	//}
 }
 
 func (s *SemanticAnalysis) VisitAtom(ctx *ironlang.AtomContext) {
